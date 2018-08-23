@@ -18,11 +18,13 @@ class DetallePagosController extends AppController {
 	public function isAuthorized($usuario)
 	{
 
+		$privilegio = $this->Session->read('privilegio_id');
+
 	
-		if ($usuario['privilegio_id'] == '4') {
+		if ($privilegio === '4') {
 
 			
-				if (in_array($this->action, array('detalle_pagos', 'addPunto', 'addEfectivo', 'addTransferencia'))) {
+				if (in_array($this->action, array('detalle_pagos', 'addPunto', 'addEfectivo', 'addTransferencia', 'pagos'))) {
 				return true;
 				}
 						
@@ -187,6 +189,23 @@ class DetallePagosController extends AppController {
 
 //*******----------------//////--------------************----------/////////
 	public function detalle_pagos($idTicket = null){
+
+		if ($idTicket == null) {
+			throw new NotFoundException("Id de ticket no encontrado", 1);
+		}
+
+		$detalletransferencias = $this->DetallePago->find('all', array('conditions' => array('DetallePago.ticket_id' => $idTicket, 'DetallePago.transferencia_id !=' => null)));
+
+		$detalleefectivos = $this->DetallePago->find('all', array('conditions' => array('DetallePago.ticket_id' => $idTicket, 'DetallePago.efectivo_id !=' => null)));
+
+		$detallepuntos = $this->DetallePago->find('all', array('conditions' => array('DetallePago.ticket_id' => $idTicket, 'DetallePago.punto_id !=' => null)));
+
+		$this->set(compact('detalletransferencias', 'detalleefectivos', 'detallepuntos', 'idTicket'));
+
+	}
+
+
+	public function pagos($idTicket = null){
 
 		if ($idTicket == null) {
 			throw new NotFoundException("Id de ticket no encontrado", 1);

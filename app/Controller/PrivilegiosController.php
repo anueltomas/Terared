@@ -80,7 +80,15 @@ class PrivilegiosController extends AppController {
 		if (!$this->Privilegio->exists($id)) {
 			throw new NotFoundException(__('Invalid privilegio'));
 		}
-		if ($this->request->is(array('post', 'put'))) {
+		//VALIDACION PARA QUE NO PUEDA SER EDITADO EL USUARIO ROOT
+		if ($id == 1) {
+
+				$this->Flash->error(__('El privilegio no puede ser editado'));
+				return $this->redirect(array('action' => 'index'));
+
+		}else{
+
+			if ($this->request->is(array('post', 'put'))) {
 
 			if ($this->request->data['Privilegio']['id'] != 1 || $this->request->data['Privilegio']['id'] != 2) {
 
@@ -97,10 +105,14 @@ class PrivilegiosController extends AppController {
 
 			}
 
-		} else {
+		}
+
+		}
+
+		
 			$options = array('conditions' => array('Privilegio.' . $this->Privilegio->primaryKey => $id));
 			$this->request->data = $this->Privilegio->find('first', $options);
-		}
+		
 	}
 
 /**

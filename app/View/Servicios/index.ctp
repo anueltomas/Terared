@@ -21,7 +21,11 @@
 
 			<?php echo $this->Html->link("<i class='fa fa-remove'></i> Eliminados", array(
 				'action' => 'eliminados',),array('class' => 'btn btn-danger pull-left', 'escape' => false)); 
-			?>			
+			?>	
+
+			<?php echo $this->Html->link("<i class='fa fa-list'></i> Modificar Precios", array(
+				'action' => 'modificar_precios',),array('class' => 'btn btn-default pull-left', 'escape' => false)); 
+			?>		
 
 		</div>
 	</div>
@@ -39,7 +43,7 @@
       		<?php echo $this->Form->end(); ?>
    
       <!-- /.search form -->
-      <div class="col-md-10 col-md-offset-1">
+      <div class="col-md-12 ">
 		<div class="table-responsive">
 			<table class="table">
 				<thead>
@@ -97,8 +101,8 @@
 
 				
 				<td class="actions">
-					<?php echo $this->Html->link(__('Editar Servicio'), array('action' => 'edit', $servicio['Servicio']['id']), array('class' => 'btn btn-sm btn-default')); ?>
-					<?php echo $this->Form->postLink(__('Eliminar'), array('action' => 'delete', $servicio['Servicio']['id']), array('class' => 'btn btn-sm btn-default', 'confirm' => __('Realmente desea eliminar: %s?', $servicio['Servicio']['nombreservicio']))); ?>
+					<?php echo $this->Html->link(__('Editar'), array('action' => 'edit', $servicio['Servicio']['id']), array('class' => 'btn btn-sm btn-primary')); ?>
+					<?php echo $this->Form->postLink(__('Eliminar'), array('action' => 'delete', $servicio['Servicio']['id']), array('class' => 'btn btn-sm btn-danger', 'confirm' => __('Realmente desea eliminar: %s?', $servicio['Servicio']['nombreservicio']))); ?>
 				</td>
 			</tr>
 					<?php endforeach; ?>
@@ -106,15 +110,15 @@
 			</table>
 			<p>
 				<?php
-					echo $this->Paginator->counter(array(
-						'format' => __('Page {:page} of {:pages}, showing {:current} records out of {:count} total, starting on record {:start}, ending on {:end}')));
+					//echo $this->Paginator->counter(array(
+						//'format' => __('Page {:page} of {:pages}, showing {:current} records out of {:count} total, starting on record {:start}, ending on {:end}')));
 					?>
 			</p>
 			<div class="paging">
 				<?php
-					echo $this->Paginator->prev('< ' . __('previous'), array(), null, array('class' => 'prev disabled'));
-					echo $this->Paginator->numbers(array('separator' => ''));
-					echo $this->Paginator->next(__('next') . ' >', array(), null, array('class' => 'next disabled'));
+					//echo $this->Paginator->prev('< ' . __('previous'), array(), null, array('class' => 'prev disabled'));
+					//echo $this->Paginator->numbers(array('separator' => ''));
+					//echo $this->Paginator->next(__('next') . ' >', array(), null, array('class' => 'next disabled'));
 				?>
 			</div>
 		</div>

@@ -2,6 +2,7 @@
 //debug($current_user);
 //echo $current_user['id'];
 //debug($clientes);
+//debug($colas);
 
 echo $this->Html->script('myjs/buscar');
 	$this->Paginator->options(array(
@@ -35,7 +36,15 @@ echo $this->Html->script('myjs/buscar');
 						                  <label>Nombre y Apellido</label>
 						                  <input id="nombrecliente" type="text" class="form-control" placeholder="Nombre y Apellido">
 						                </div>
-						              </div>
+						              
+
+						              <div class="form-group">                     
+							              <label>Servicio a solicitar:</label>
+							              <?php echo $this->Form->input('cola_id', array('options' => array($colas), 'empty' => 'Seleccione--', 'id' => 'cola', 'class' => 'cola', 'form-control select2 select2-hidden-accessible',  'label' => false)) ?>
+							            </div>
+
+							            </div>
+
 						              <div class="modal-footer">
 						                <button id="cerrarModal" type="button" class="btn btn-default pull-left" data-dismiss="modal">Cerrar</button>
 						                <button type="button" class="btn btn-primary" id="guardar">Guardar</button>
@@ -48,11 +57,88 @@ echo $this->Html->script('myjs/buscar');
 						        <!-- /.modal -->
 
 						<!-- FIN VENTANA MODAL -->
-
-					    
-								 				
-				 				
+		 				
 </div>
+
+
+<!-- MODAL TICKETS PAGADOS -->
+<div class="form-group">
+
+      <!-- INICIO VENTANA MODAL -->
+      <div class="modal fade" id="modal-pagados">
+       <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Tickets pagados</h4>
+          </div>
+        <div class="col-md-12">    
+
+        	<table class="table">
+				<thead>
+					<tr>
+						<th>N° Ticket</th>
+						<th>Nombre</th>
+						<th>Monto a pagar</th>
+						<th>Estado</th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php foreach ($pagados as $ticket): ?>
+						
+					<tr>
+				<td><?php echo h($ticket['Ticket']['numeroticket']); ?>&nbsp;</td>
+
+				<td><?php echo h($ticket['Cliente']['nombre']); ?>&nbsp;</td>
+
+				<td><?php echo number_format($ticket['Ticket']['montoticket'], 2,",","."); ?> Bs.</td>
+
+				<td><?php echo h($ticket['Ticket']['estadoticket']); ?>&nbsp;</td>
+			
+				
+						
+			
+
+
+			</tr>
+
+					<?php endforeach; ?>
+				</tbody>
+			</table>
+            
+           
+        
+     
+                                              
+                    
+        </div>
+        <div class="modal-footer">
+          <button id="cerrarModal" type="button" class="btn btn-default pull-left" data-dismiss="modal">Cerrar</button>
+         
+        </div>
+
+        <?php
+
+
+        ?>
+
+                      
+        <?php //echo $this->Form->end(); ?>
+
+      </div>
+      <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+  </div>
+  <!-- /.modal -->
+
+  </div>
+
+  <!-- FIN VENTANA MODAL -->
+
+
+
 
 <?php echo $this->Html->script(array('myjs/buscar')); ?>
 <div class="box box-primary box-solid">
@@ -84,6 +170,20 @@ echo $this->Html->script('myjs/buscar');
 				'action' => 'add'), array('class' => 'btn btn-primary pull-left', 'escape' => false, 'type' => 'button', 'data-toggle' => 'modal', 'data-target' => '#modal-default')); 
 				echo $this->Html->link("<i class='fa fa-list-alt'></i> Tickets", array('controller' => 'tickets', 'action' => 'index'), array('class' => 'btn btn-success pull-left', 'escape' => false)); 
 			?>
+
+			<?php $privilegio = $this->Session->read('privilegio_id'); ?>
+
+			<?php if ($privilegio != 4) { ?>
+			<?php echo $this->Html->link("<i class='fa fa-rocket'></i> Express", array('controller' => 'tickets', 'action' => 'express',),array('class' => 'btn btn-warning pull-left', 'escape' => false)); 
+			?>	
+			<?php } ?>
+
+			<?php echo $this->Html->link("<i class='fa fa-money'></i> Tickets Pagados", array('controller' => 'tickets', 'action' => 'add'),array('class' => 'btn btn-danger pull-left', 'escape' => false, 'data-toggle' => 'modal', 'data-target' => '#modal-pagados')); 
+       		 ?> 	
+
+       		 <?php echo $this->Html->link("<i class='fa fa-ticket'></i> Ticket Actual", array(
+				'controller' => 'tickets', 'action' => 'ticketactual'),array('class' => 'btn bg-navy pull-left', 'escape' => false)); 
+			?>	
 		</div>
 	</div>
 

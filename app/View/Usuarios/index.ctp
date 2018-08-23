@@ -1,5 +1,6 @@
+<?php //debug($usuarios); ?>
+<?php //debug($privilegios); ?>
 
-<?php //debug($servicios); ?>
 <div class="box box-primary box-solid">
 	<div class="box-header with-border">
 		<h3 class="box-title"><i class="fa fa-users"></i> Usuarios</h3>
@@ -55,10 +56,10 @@
 				<?php } ?>
 
 				<td>
-					<?php echo $this->Html->link($usuario['Trabajador']['nombre'], array('controller' => 'trabajadores', 'action' => 'edit', $usuario['Trabajador']['id'])); ?>
+					<?php echo $this->Html->link($usuario['Trabajador']['nombre'], array('controller' => 'trabajadors', 'action' => 'edit', $usuario['Trabajador']['id'])); ?>
 				</td>
 				<td>
-					<?php echo $this->Html->link($usuario['Privilegio']['nombreprivilegio'], array('controller' => 'privilegios', 'action' => 'edit', $usuario['Privilegio']['id'])); ?>
+					<?php echo $this->Html->link('Ver', array('controller' => 'usuarios', 'action' => 'ver', $usuario['Usuario']['id'])); ?>
 				</td>
 				<td class="actions">
 					<?php echo $this->Html->link(__('Editar'), array('action' => 'edit', $usuario['Usuario']['id']), array('class' => 'btn btn-sm btn-default')); ?>
@@ -72,15 +73,15 @@
 			</table>
 			<p>
 				<?php
-					echo $this->Paginator->counter(array(
-						'format' => __('Page {:page} of {:pages}, showing {:current} records out of {:count} total, starting on record {:start}, ending on {:end}')));
+					//echo $this->Paginator->counter(array(
+						//'format' => __('Page {:page} of {:pages}, showing {:current} records out of {:count} total, starting on record {:start}, ending on {:end}')));
 					?>
 			</p>
 			<div class="paging">
 				<?php
-					echo $this->Paginator->prev('< ' . __('previous'), array(), null, array('class' => 'prev disabled'));
-					echo $this->Paginator->numbers(array('separator' => ''));
-					echo $this->Paginator->next(__('next') . ' >', array(), null, array('class' => 'next disabled'));
+					//echo $this->Paginator->prev('< ' . __('previous'), array(), null, array('class' => 'prev disabled'));
+					//echo $this->Paginator->numbers(array('separator' => ''));
+					//echo $this->Paginator->next(__('next') . ' >', array(), null, array('class' => 'next disabled'));
 				?>
 			</div>
 		</div>

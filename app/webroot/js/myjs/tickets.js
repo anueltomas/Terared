@@ -2,6 +2,8 @@ $(document).ready(function(){
 
 	var ticket  = $("#ticket").val();
 
+
+
 	//refreshTabla(ticket);
 
 	$('.numeric').on('keyup change', function(event){
@@ -29,6 +31,14 @@ $(document).ready(function(){
 
 
 	});
+
+	$("#cantidad").keyup(function(e){
+   			
+   		if(e.keyCode == 13) {
+	        guardar(mycallback);
+	    }
+
+   	}) 
 
 	
 

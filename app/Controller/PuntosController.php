@@ -19,8 +19,10 @@ class PuntosController extends AppController {
 	public function isAuthorized($usuario)
 	{
 
-	
-		if ($usuario['privilegio_id'] == '4') {
+		$privilegio = $this->Session->read('privilegio_id');
+
+		//debug($privilegio);
+		if ($privilegio === '4') {
 
 			
 				if (in_array($this->action, array('pago_punto'))) {
@@ -32,6 +34,8 @@ class PuntosController extends AppController {
 		return parent::isAuthorized($usuario);
 
 	}
+
+	
 
 /**
  * index method
@@ -126,7 +130,7 @@ class PuntosController extends AppController {
 		if ($this->request->is('post')) {
 
 			if ($this->request->data['Punto']['monto'] > 0) {
-				
+				//debug($this->request->data);
 				$this->Punto->create();
 				if ($this->Punto->save($this->request->data)) {
 

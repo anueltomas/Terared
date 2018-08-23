@@ -16,43 +16,57 @@ $(document).ready(function(){
    	})
 
 	
-	function guardar(){
 
-		var n = $("#nombrecliente").val();
-   			var url = basePath + "clientes/index";
+   function guardar(){
 
-   			if (n == '') 
-   			{
-   				//$('msj_error').html('Debe ingresar un nombre de cliente o cerrar la ventana');
-   				
-   				alert('Cliente debe tener un nombre');
-   			} else{
+            var n = $("#nombrecliente").val();
+            var url = basePath + "clientes/index";
+            var cola = $("#cola").val();
+            if (n == '') 
+            {
+               //$('msj_error').html('Debe ingresar un nombre de cliente o cerrar la ventana');
+               
+               alert('Cliente debe tener un nombre');
 
-   				$('msj_error').html('');
-   				$.ajax({
-   				type:"post",
-   				url: url,
-   				data: {nombre:n},
+            } else{
 
-	   				success: function(data){
+               if (cola == '')
+               {
 
-	   					
-	   					//$("modal-default").trigger("reset");
-	   					$("#modal-clientes").modal('hide'); //Ocultamos el modal
-						$('body').removeClass('modal-open');//eliminamos la clase del body para poder hacer scroll
-  						$('.modal-backdrop').remove();//eliminamos el backdrop del modal
-	   						
-	   				},
+                  alert('Debe seleccionar el servicio del cliente');
 
-	   				error: function(){
-				      alert('Error en función javascript de Clientes/index.ctp');
-				    }
+               }else{
+                   $('msj_error').html('');
+               $.ajax({
+               type:"post",
+               url: url,
+               data: {
+                  nombre: n,
+                  cola_id: cola
+               },
 
-	   			});
+                  success: function(data){
 
-   			}
+                     
+                     //$("modal-default").trigger("reset");
+                     $("#modal-clientes").modal('hide'); //Ocultamos el modal
+                     $('body').removeClass('modal-open');//eliminamos la clase del body para poder hacer scroll
+                     $('.modal-backdrop').remove();//eliminamos el backdrop del modal
+                        
+                  },
 
-	}
+                  error: function(){
+                  alert('Error en función javascript de Clientes/index.ctp');
+                }
+
+               });
+               }
+
+               
+
+            }
+
+   }
 
 
 	

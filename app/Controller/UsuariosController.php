@@ -13,16 +13,20 @@ class UsuariosController extends AppController {
  *
  * @var array
  */
-	public $components = array('Paginator');
+	public $components = array(
+		'Auth' => array(
+			'authenticate' => array(
+				'Form' => array(
+					'fields' => array('privilegio_id' => 'Administrador')))));
 
-	//FUNCIONES PROPIAS
+//FUNCIONES PROPIAS
 	public function beforeFilter()
 	{
 		parent::beforeFilter();
 
 		//SI LA BD ESTA VACIA, DESCOMENTAR LA SIGUIENTE LINEA Y COMENTAR LA CONSIGUIENTE
 
-		//$this->Auth->allow('login', 'logout','edit', 'editarpassword');
+		//$this->Auth->allow('index', 'add', 'login', 'logout','edit', 'editarpassword', 'ver', 'view');
 
 		$this->Auth->allow('login', 'logout');
 	}
@@ -42,17 +46,25 @@ class UsuariosController extends AppController {
 
 		}
 
+		if ($this->action==='modoacceso') {
+
+			return true;
+
+		}
+
 		return parent::isAuthorized($usuario);
 	}
 
-	public function comprobarUsuario($usuario)
+	public function comprobarUsuario($usuario, $privilegio)
 	{
 
 		if (isset($usuario)) 
 		{
 			$datosUsuario = $this->Usuario->find('first', array('conditions' => array('Usuario.username' => $usuario)));
-			//debug($datosUsuario);
 
+			$username = $datosUsuario['Usuario']['username'];
+
+			//debug($datos);
 			if (!empty($datosUsuario) == 1) 
 			{
 
@@ -60,7 +72,22 @@ class UsuariosController extends AppController {
 				{
 					if ($datosUsuario['Usuario']['borrado'] == false) 
 					{
-						return true;
+
+						//comprobar si tiene los privilegios
+						$datos = $this->Usuario->query("SELECT usuarios.nombreusuario, privilegios.nombreprivilegio FROM usuarios 
+							INNER JOIN privilegios_usuarios ON usuarios.id = privilegios_usuarios.usuario_id 
+							INNER JOIN privilegios ON privilegios_usuarios.privilegio_id = privilegios.id
+							WHERE usuarios.username = '$username'
+							AND privilegios.id = $privilegio");
+
+						if ($datos != null) {
+
+							return true;
+						}else{
+							return false;
+						}
+						
+						
 					}else
 					{
 						//$this->Flash->error('Usuario no activo 1');
@@ -85,28 +112,57 @@ class UsuariosController extends AppController {
 		}
 	}
 
+
+
 	public function login()
 	{
 
 		
 		if ($this->request->is('post')) {
+			//debug($this->request->data);
+			$privilegio = $this->request->data['Usuario']['privilegio_id'];
+			//debug($privilegio);
+			if (empty($privilegio)) {
 
-			if ($this->comprobarUsuario($this->request->data['Usuario']['username']) == true) {
-				//debug($this->request->data);
-			if ($this->Auth->login()) {
-				return $this->redirect($this->Auth->redirectUrl() );
-			}
-			$this->Session->setFlash('Usuario y/o contraseña incorrectos', 'default', array('class' => 'alert alert-danger'));
+				$this->Session->setFlash('Debe seleccionar un privilegio', 'default', array('class' => 'alert alert-danger'));
 			}else{
-				$this->Session->setFlash('Usuario no habilitado para usar el sistema. Dirijase al administrador', 'default', array('class' => 'alert alert-danger'));
+
+			//GUARDAMOS EL ID DEL PRIVILEGIO Y EL NOMBRE EN SESSION
+			$this->Session->write('privilegio_id', $privilegio);
+
+			$this->loadModel('Privilegio');
+
+			$nombreprivilegio = $this->Privilegio->find('first', array('conditions' => array('Privilegio.id' => $privilegio), 'recursive' => -1, 'fields' => 'Privilegio.nombreprivilegio'));
+
+			$nprivilegio = $nombreprivilegio['Privilegio']['nombreprivilegio'];
+
+			$this->Session->write('privilegio_nombre', $nprivilegio);
+
+			if ($this->comprobarUsuario($this->request->data['Usuario']['username'], $privilegio) == true) {
+
+
+				
+				if ($this->Auth->login()) { 
+					return $this->redirect($this->Auth->redirectUrl() );
+					
+				}
+				$this->Session->setFlash('Usuario y/o contraseña incorrectos', 'default', array('class' => 'alert alert-danger'));
+			}else{
+				$this->Session->setFlash('Privilegios insuficientes para acceder', 'default', array('class' => 'alert alert-danger'));
 			}
+
+		}
 
 			
 		}
+
+		$privilegios = $this->Usuario->Privilegio->find('list', array('conditions' => array('Privilegio.id !=' => 1 )));
+		$this->set('privilegios', $privilegios);
 	}
 
 	public function logout()
 	{
+		$this->Session->destroy();
 		return $this->redirect($this->Auth->logout());
 	}
 
@@ -120,7 +176,7 @@ class UsuariosController extends AppController {
 
 			 	$rcontraseña = $this->request->data['rcontraseña'];
 
-
+			 	debug($this->request->data);
 				 	if ($contraseña == $rcontraseña) {
 				 		
 				 	$this->request->data['Usuario']['password'] = $contraseña; 
@@ -145,6 +201,8 @@ class UsuariosController extends AppController {
 
 
 
+	
+
 /**
  * index method
  *
@@ -152,10 +210,16 @@ class UsuariosController extends AppController {
  */
 	public function index() {
 		$this->Usuario->recursive = 0;
-		$usuario = $this->Usuario->find('all', array('conditions' => array('Usuario.borrado' => 0)));
-		$this->set('usuarios', $usuario, $this->Paginator->paginate());
-	}
+		$usuario = $this->Usuario->find('all', array('conditions' => array('Usuario.borrado' => 0), 'recursive' => 0));
 
+		$privilegios = $this->Usuario->Privilegio->find('list', array('conditions' => array('Privilegio.id !=' => 1 )));
+
+		//debug($privilegios);
+		//debug($usuario);
+
+		$this->set('privilegios', $privilegios);
+		$this->set('usuarios', $usuario);
+	}
 
 /**
  * view method
@@ -179,22 +243,16 @@ class UsuariosController extends AppController {
  */
 	public function add() {
 		if ($this->request->is('post')) {
-			$contraseña = $this->request->data['contraseña'];
+
+			
+				$contraseña = $this->request->data['contraseña'];
 
 			 	$rcontraseña = $this->request->data['rcontraseña'];
 
 
 				 	if ($contraseña == $rcontraseña) {
 
-				 		//COMPROBANDO SI EL TRABAJADOR YA TIENE ESTE PRIVILEGIO
-				 		$idTrab = $this->request->data['Usuario']['trabajador_id'];
-				 		$idPriv = $this->request->data['Usuario']['privilegio_id'];
-
-				 		$coincidencia = $this->Usuario->find('first', array('conditions' => array('trabajador_id' => $idTrab, 'privilegio_id' => $idPriv)));
-
-				 		$coincidencia = count($coincidencia);
-
-				 		if ($coincidencia == 0) {
+				 		
 				 			$this->request->data['Usuario']['password'] = $contraseña; 
 
 							$this->Usuario->create();
@@ -206,13 +264,11 @@ class UsuariosController extends AppController {
 								$this->Flash->error(__('El usuario no fué creado.'));
 						
 							}
-				 		}else{
-				 			$this->Flash->error(__('El trabajador ya tiene el privilegio asignado.'));
-				 		}
- 			
 					
 			 	}else{
+
 			 		$this->Flash->error('Las contraseñas no coinciden');
+			 		
 			 	}
 
 			
@@ -235,14 +291,6 @@ class UsuariosController extends AppController {
 		}
 		if ($this->request->is(array('post', 'put'))) {
 
-			$contraseña = $this->request->data['contraseña'];
-
-			$rcontraseña = $this->request->data['rcontraseña'];
-
-			if ($contraseña == $rcontraseña) {
-				 		
-				$this->request->data['Usuario']['password'] = $contraseña;
-
 
 				if ($this->Usuario->save($this->request->data)) {
 					$this->Flash->success(__('El usuario ha sido editado.'));
@@ -251,9 +299,7 @@ class UsuariosController extends AppController {
 					$this->Flash->error(__('El Usuario no pudo se editado.'));
 				}
 
-			}else{
-			 	$this->Flash->error('Las contraseñas no coinciden');
-			 }
+			
 
 			//debug($this->request->data);
 		} else {
@@ -288,7 +334,9 @@ class UsuariosController extends AppController {
 	}
 
 	//Funcion para que cada usuario no administrador pueda modificar sus credenciales de acceso al sistema
-	public function editarusuario($id = null){
+	public function editarusuario(){
+
+		$id = $this->Auth->user('id');
 
 		if (!$this->Usuario->exists($id)) {
 			throw new NotFoundException(__('Id de usuario no accesado'));
@@ -324,5 +372,16 @@ class UsuariosController extends AppController {
 
 	}
 
+	public function ver($id = null){
 
-}//FIN DE LA CLASE
+		$usuarios = $this->Usuario->find('all', array('conditions' => array('Usuario.id' => $id)));
+		//debug($usuarios);
+
+		if (!$this->Usuario->exists($id)) {
+			throw new NotFoundException(__('Invalid usuario'));
+		}
+		$options = array('conditions' => array('Usuario.' . $this->Usuario->primaryKey => $id));
+		$this->set('usuario', $this->Usuario->find('first', $options));
+
+	}
+}

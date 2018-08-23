@@ -36,7 +36,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
           href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
 </head>
 
-  <body class="hold-transition skin-blue-light fixed sidebar-mini">
+  <body class="hold-transition skin-blue fixed" >
     
     <?php if(isset($current_user)){ ?>
     <div class="wrapper">
@@ -55,10 +55,11 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
       <div class="content-wrapper">
         <!-- Content Header (Page header) -->
-
-          
         <section class="content-header">
-          <?php echo $this->Flash->render(); ?>
+          <div class="row">
+            <?php echo $this->Flash->render(); ?>  
+          </div>
+          
           <h1>
             <small>Inversiones TeraRED "Navega, imprime, copia y más..."</small>
           </h1>
@@ -92,22 +93,30 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
       <!-- Main Footer -->
       <footer class="main-footer">
-        <div class="container">
             <!-- To the right -->
             <div class="pull-right hidden-xs">
               <b>Versión 1.0.0</b>
             </div>
             <!-- Default to the left -->
             <strong>Copyright &copy; 2017-2018  <a href="#"> Inv. TeraRed C.A.</a>.</strong> All rights reserved.
-            <?php  echo $this->element('sql_dump'); ?>
-        </div>
+            
+        
+      </footer>
+
+      <footer>
+        <div>
+        <?php //echo $this->element('sql_dump'); ?>
+      </div>
       </footer>
 
 
       <?php echo $this->Html->script('bootstrap/js/bootstrap.min'); ?>
       <?php echo $this->Html->script('adminlte/js/adminlte.min'); ?>
       <?php echo $this->Html->script('adminlte/js/demo.js'); ?>
-       <?php echo $this->Html->script('adminlte/iCheck/icheck.min'); ?>
+      <?php //echo $this->Html->script('adminlte/chart/Chart.js'); ?>
+       <?php //echo $this->Html->script('adminlte/iCheck/icheck.min'); ?>
+       <?php echo $this->Html->script('highchart/highcharts.js'); ?>
+       <?php echo $this->Html->script('highchart/exporting.js'); ?>
 
       <script type="text/javascript">
         var basePath = "<?php echo Router::url('/');?>"
@@ -132,4 +141,9 @@ scratch. This page gets rid of all links and provides the needed markup only.
     </div>
   </body>
 </html>
+
+
+
+
+
 

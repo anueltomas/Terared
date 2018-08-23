@@ -7,7 +7,6 @@ $(document).ready(function(){
 		
 		ajaxserv($(this).attr("id"), 0, idTicket);
 		//refreshTabla();
-
 		return false;
 
 	});//FIN DE LA FUNCTION CLICK
@@ -41,7 +40,7 @@ $(document).ready(function(){
 			},
 
 			error: function(){
-				alert('1 Problema al eliminar servicio de tickets');
+				//alert('1 Problema al eliminar servicio de tickets');
 			},
 		});
 	};

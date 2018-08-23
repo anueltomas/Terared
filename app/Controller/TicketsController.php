@@ -9,26 +9,40 @@ class TicketsController extends AppController {
 	public function isAuthorized($usuario)
 	{
 
+		$privilegio = $this->Session->read('privilegio_id');
+
 		if (in_array($this->action, array(
 											'index', 
 											'detalle_ticket', 
-											'editar', 
-											'nuevo', 
-											'ticketactual', 
-											'crear_ticket', 
-											'guardar_ticket', 
+											'add',
+											'tabla_tickets',
 											'verificar_ticket_en_espera', 
 											'calcular_total_ticket', 
 											'verificarservicio', 
 											'calculomonto',
-											'precioservicio'))) {
+											'precioservicio',
+											
+											'delete',
+											
+											))) {
 				return true;
 		}
 
-		if ($usuario['privilegio_id'] == '4') {
+		 
+
+		if ($privilegio == '5' || $privilegio == '3') {
 
 			
-				if (in_array($this->action, array('index', 'editar', 'nuevo', 'ticketactual', 'express', 'caja', 'comprobar_inicio_caja', 'abrir_caja', 'ver', 'detalle_pagos', 'procesar_ticket', 'ingresar_pago','iniciar_caja', 'cerrar_caja', 'calcular_total_ticket'))) {
+				if (in_array($this->action, array('editar', 'nuevo', 'ticketactual', 'crear_ticket', 'guardar_ticket', 'express', 'add'))) {
+				return true;
+				}
+						
+			}
+
+		if ($privilegio == '4') {
+
+			
+				if (in_array($this->action, array('index', 'caja', 'comprobar_inicio_caja', 'abrir_caja', 'ver', 'detalle_pagos', 'procesar_ticket', 'ingresar_pago','iniciar_caja', 'cerrar_caja', 'cerrar_turno', 'calcular_total_ticket', 'pagados', 'detalles', 'tabla_caja', 'facturar'))) {
 				return true;
 				}
 						
@@ -37,6 +51,7 @@ class TicketsController extends AppController {
 		return parent::isAuthorized($usuario);
 
 	}
+ 
 
 	//-------------------------************----------------------*****************----------
 
@@ -44,27 +59,161 @@ class TicketsController extends AppController {
 	//Funcion para evaluar si el usuario inicio caja
 	public function iniciar_caja() {
 
-		$datos = array('usuario_id' => $this->Auth->user('id'), 'estadoturno' => 'A');
+		$this->loadModel('Cierre');
 
-		$this->loadModel('TurnoCajero');
+		//EVALUAMOS SI EL TURNO QUE SE ESTA INICIANDO TIENE UNA CAJA ABIERTA DEL DIA DE HOY
+		$fecha_hoy = date('Y-m-d');
 
-			$this->TurnoCajero->create();
+		$resultado = $this->Cierre->find('first', array('fields' => array('Cierre.id', 'Cierre.estadocierre'), 'conditions' => array('DATE(Cierre.created)' => $fecha_hoy, 'Cierre.estadocierre' => 'A'), 'recursive' => -1));
 
-			if ($this->TurnoCajero->save($datos)) {
+		if (empty($resultado)) {
+			//NO ENCONTRAMOS, BUSCAMOS CAJA ABIERTA ANTERIOR
+			$caja_abierta = $this->Cierre->find('first', array('fields' => array('Cierre.id', 'Cierre.estadocierre'), 'conditions' => array('Cierre.estadocierre' => 'A'), 'recursive' => -1));
+
+			if (empty($caja_abierta)) {
+				//APERTURAMOS UNA NUEVA CAJA
+				$resultado = $this->abrircaja();
+
+				if ($resultado === false) {
+					//NO SE PUDO ABRIR CAJA
+				}else{
+
+					//ABRIMOS UN NUEVO TURNO
+					$this->aperturarturno($respuesta);
+
+				}
+
+			}else{
+				//CERRAMOS CAJA ANTERIOR
+				$idCaja = $caja_abierta['Cierre']['id'];
+				$respuesta = $this->cerrarcaja($idCaja);
+
+				if ($respuesta === true) {
+
+					//ABRIMOS NUEVA CAJA
+					$respuesta = $this->abrircaja();
+
+					if ($respuesta === false) {
+						
+					}else{
+
+						//ABRIMOS UN NUEVO TURNO
+						$this->aperturarturno($respuesta);
+
+					}
+
+				}else{
+					//ERROR AL CERRAR CAJA
+				}
+
 				
-				$this->Flash->success(__('Caja iniciada.'));
-				$this->redirect(array('action' => 'caja'));
-				
-			} else {
-				
-				$this->Flash->error(__('Caja no iniciada.'));
 			}
+			
+		}else{
+			//APERTURAMOS TURNO CON LA CAJA QUE SE ENCUENTRA ABIERTA ENVIANDOLE EN ID DE LA CAJA
+			$idCaja = $resultado['Cierre']['id'];
+			$this->aperturarturno($idCaja);
+		}
+
+		
 		
 		$this->autoRender = false;
 
 		
 
 	}//Fin de inicio de caja
+
+
+	public function aperturarturno($idCaja = null){
+
+		if($idCaja === null) {
+			throw new NotFoundException("Error en el id de la caja", 1);
+			
+		}
+
+		$this->loadModel('Configuration');
+
+		$frecuencia = $this->Configuration->find();
+
+			if (empty($frecuencia)) {
+
+				$this->Flash->error(__('No ha sido configurada la frecuencia de la facturación, informe a un administrador'));
+
+				$this->redirect(array('action' => 'abrir_caja'));
+
+			} else {
+
+				$datos = array('usuario_id' => $this->Auth->user('id'), 'estadoturno' => 'A', 'cierre_id' => $idCaja);
+
+				$this->loadModel('TurnoCajero');
+
+					$this->TurnoCajero->create();
+
+					if ($this->TurnoCajero->save($datos)) {
+						
+						$this->Flash->success(__('Turno Iniciado.'));
+						$this->redirect(array('action' => 'caja'));
+						
+					} else {
+						
+						$this->Flash->error(__('El turno no pudo ser iniciado.'));
+					}
+
+			}
+
+	}
+
+
+
+	public function abrircaja(){
+
+		$this->loadModel('Cierre');
+
+		$this->Cierre->create();
+
+					if ($this->Cierre->save()) {
+
+						$fecha_hoy = date('Y-m-d');
+
+						$result = $this->Cierre->find('first', array('fields' => array('Cierre.id', 'Cierre.estadocierre'), 'conditions' => array('DATE(Cierre.created)' => $fecha_hoy, 'Cierre.estadocierre' => 'A'), 'recursive' => -1));
+
+						$idCaja = $result['Cierre']['id'];
+						
+						$respuesta = $idCaja;
+						
+					} else {
+						
+						$respuesta = false;
+					}
+
+					return $respuesta;
+	}
+
+	public function cerrarcaja($idCaja = null){
+
+		if($idCaja === null) {
+			throw new NotFoundException("Error en el id de la caja", 1);
+			
+		}
+
+
+		$this->loadModel('Cierre');
+
+			$this->Cierre->id = $idCaja;
+
+
+					if ($this->Cierre->saveField('estadocierre', 'C')) {
+						
+						$respuesta = true;
+						
+					} else {
+						
+						$respuesta = false;
+					}
+
+					return $respuesta;
+
+	}
 
 
 	//COMPROBAR EL INICIO DE CAJA
@@ -88,26 +237,64 @@ class TicketsController extends AppController {
 
 	}
 
-	public function cerrar_caja($idTurno = null) {
+	public function cerrar_caja() {
+
+		//EVALUAMOS SI EXISTE UN CAJERO ACTIVO
+		$this->loadModel('TurnoCajero');
+		$idCajero = $this->TurnoCajero->find('first', array('conditions' => array('TurnoCajero.estadoturno' => 'A')));
+
+		if ($idCajero != null) {
+			$this->Flash->error(__('Existe un cajero activo.'));
+		}else {
+
+			$datos = array('montoanterior' => 0);
+
+		$this->loadModel('Cierre');
+
+		if ($this->Cierre->save($datos)) {
+
+							
+					$this->Flash->success(__('Caja cerrada con exito.'));
+					return $this->redirect(array('controller' => 'principal', 'action' => 'index'));
+
+				} else {
+					
+					$this->Flash->error(__('La caja no pudo cerrarse.'));
+				}
+
+		}
+		
+
+		
+
+	}
+
+	public function cerrar_turno($idTurno = null) {
 
 		if ($idTurno == null) {
 			throw new NotFoundException("Error con el id del turno", 1);
 			
 		}
 
-		$datos = array('id' => $idTurno, 'usuario_id' => $this->Auth->user('id'), 'estadoturno' => 'C');
+		//EVALUAR SI EL CAJERO TIENE FACTURAS PENDIENTES
 
-		$this->loadModel('TurnoCajero');
-			
-			if ($this->TurnoCajero->save($datos)) {
-				
-				$this->Flash->success(__('Caja cerrada.'));
-				$this->redirect(array('controller' => 'principal', 'action' => 'index'));
+		$ticketsSinFacturar = $this->Ticket->query("SELECT * FROM tickets, usuarios, turno_cajeros 
+			WHERE tickets.turno_cajero_id = turno_cajeros.id
+			AND turno_cajeros.id = $idTurno
+			AND tickets.estadoticket = 'Pagado'
+			");
 
-			} else {
-				
-				$this->Flash->error(__('La caja no pudo ser cerrada.'));
-			}
+		if ($ticketsSinFacturar != null) {
+			$this->Flash->error(__('Debe facturar todos los tickets cobrados para cerrar el turno'));
+
+			$this->redirect(array('controller' => 'tickets', 'action' => 'facturar'));
+		}else {
+			$this->redirect(array('controller' => 'cierres', 'action' => 'add', $idTurno));
+		}
+
+		
+
+		
 
 		$this->autoRender = false;
 
@@ -118,7 +305,9 @@ class TicketsController extends AppController {
 	//COMPROBAR SI EL USUARIO ES UN CAJERO
 	public function comprobar_cajero() {
 
-		if ($this->Auth->user('privilegio_id') == 4) {
+		$privilegio = $this->Session->read('privilegio_id');
+
+		if ($privilegio == 4 || $privilegio == 1 || $privilegio == 2) {
 			return true;
 		}else{
 			return false;
@@ -142,7 +331,7 @@ class TicketsController extends AppController {
 			if ($resultado == true) {
 
 				//DE ESTE MISMO USUARIO???
-				$resultado2 = $this->TurnoCajero->find('first', array('conditions' => array('TurnoCajero.usuario_id' => $this->Auth->user('id'))));
+				$resultado2 = $this->TurnoCajero->find('first', array('conditions' => array('TurnoCajero.usuario_id' => $this->Auth->user('id'), 'TurnoCajero.estadoturno' => 'A')));
 
 				if ($resultado2 != null) {
 
@@ -169,6 +358,10 @@ class TicketsController extends AppController {
 
 					$this->set('cajero', $cajero);
 
+					$conditions = array('Ticket.estadoticket' => array('Pagado'));
+					$ticket = $this->Ticket->find('all', array('conditions' => $conditions, 'order' => array('Ticket.modified' => 'DESC'), 'limit' => 20));
+					$this->set('pagados', $ticket, $this->Paginator->paginate());
+
 				} else {
 
 					//DEBE SOLICITAR A UN ADMINISTRADOR CERRAR ESTA CAJA
@@ -185,13 +378,8 @@ class TicketsController extends AppController {
 
 		} else {//NO ES CAJERO 
 
-			//PREGUNTAMOS SI ES ADMINISTRADOR
-			if ($this->Auth->user('privilegio_id') == 1 || $this->Auth->user('privilegio_id' == 2)) {
-			$this->redirect(array('action' => 'administrar_caja'));
-			}else{
 				$this->Flash->error(__('Debe ser un cajero para poder acceder'));
 				return $this->redirect(array('controller' => 'principal', 'action' => 'index'));
-			}
 
 		}
 
@@ -202,15 +390,25 @@ class TicketsController extends AppController {
 	//FUNCION PARA QUE ADMINISTRADOR CIERRA CAJA
 	public function administrar_caja(){
 
-		$this->loadModel('TurnoCajero');
+		//PREGUNTAMOS SI ES ADMINISTRADOR
+		$privilegio = $this->Session->read('privilegio_id');
+		if ($privilegio == 1 || $privilegio == 2) {
 
-		$datos = $this->TurnoCajero->find('first', array('conditions' => array('TurnoCajero.estadoturno' => 'A')));
+			$this->loadModel('TurnoCajero');
 
-		$this->set('cajero', $datos);
+			$datos = $this->TurnoCajero->find('first', array('conditions' => array('TurnoCajero.estadoturno' => 'A')));
 
-		//$fecha = $this->TurnoCajero->query("SELECT DATE(created) FROM `turno_cajeros`");
+			$this->set('cajero', $datos);
 
-		//$this->set('fecha', $fecha);
+			//$fecha = $this->TurnoCajero->query("SELECT DATE(created) FROM `turno_cajeros`");
+
+			//$this->set('fecha', $fecha);
+		} else {
+
+			$this->Flash->error(__('Debe ser administrador para poder acceder'));
+				return $this->redirect(array('controller' => 'principal', 'action' => 'index'));
+
+		}
 
 	}
 
@@ -220,36 +418,39 @@ class TicketsController extends AppController {
 	//Funcion para tickets rapidos
 	public function express() {
 
+		
 
-	}//Fin ticket expresss
+				if ($this->request->is('post')) {
+					
+					$nombreCliente = $this->request->data['Cliente']['nombre'];
+					$respuesta = $this->redirect(array('controller' => 'clientes', 'action' => 'clienteExpress', $nombreCliente));
+					if ($respuesta != false) {
+					} else {
+						$this->Flash->error('Error al agregar el cliente');
+					}
+
+				}
+				
+
+		
+
+	}//Fin ticket express
 
 	public function nuevo($idCliente = null) {
 
-		$idUsuario = $this->Auth->user('id');
+		
 
 		//Comprobamos si el cliente tiene un ticket pendiente
 
+			if ($idCliente != null) {
 
+				$respuesta = $this->verificar_ticket_pendiente();
 
-		if ($idUsuario == null) {
-
-			throw new NotFoundException("El Id del usuario no existe", 1);
-
-		}else{
-
-			$respuesta = $this->verificar_ticket_pendiente();
-			
-			if ($respuesta != false) {
-
-				$this->Flash->error(__('El usuario tiene un ticket pendiente.'));
-
-				$this->redirect(array('action' => 'ticketactual'));
+				$idTicketActual = $respuesta['Ticket']['id'];
 				
-			}else{
+				if ($respuesta != false) {
 
-				//Es distinto de nulo el valor del idCliente que viene cuando presionamos
-				//"Atender" en la lista de los clientes??
-				if ($idCliente != null) {
+					$this->cambiar_ticket_a_espera($idTicketActual);
 
 					//Creamos un nuevo ticket para el cliente
 
@@ -262,33 +463,82 @@ class TicketsController extends AppController {
 
 
 					$this->redirect(array('action' => 'ticketactual'));
-						
-				
-				}else {
 
-					$this->Flash->error(__('No existe el cliente para ser agregado a un nuevo ticket'));
+				
+				} else {
+				
+				//Creamos un nuevo ticket para el cliente
+
+					$idTicket = $this->crear_ticket($idCliente);
+
+					$datos_nuevo_ticket = $this->Ticket->find('all', array('conditions' => array('Ticket.id' => $idTicket)));
+
+					
+					$idTicket = $datos_nuevo_ticket[0]['Ticket']['id'];
+
+
+					$this->redirect(array('action' => 'ticketactual'));
 
 				}
 
-			}
+			}else {
 
-		}
+					$this->Flash->error(__('No existe el cliente para ser agregado a un nuevo ticket'));
+				}
+		
+		
 
 		$this->autoRender = false;
 
 	}//Fin nuevo
 
 
+	public function pagados() {
+
+		$this->Ticket->recursive = 0;
+
+					$conditions = array('Ticket.estadoticket' => array('Pagado'));
+					$ticket = $this->Ticket->find('all', array('conditions' => $conditions, 'order' => array('Ticket.modified' => 'DESC')));
+					$this->set('tickets', $ticket, $this->Paginator->paginate());
+
+					$this->loadModel('DetalleTicket');
+					$detalles = $this->DetalleTicket->find('all');
+					$this->set('detalles', $detalles);
+
+					//Calculando total de tickets
+					$totaltickets = $this->DetalleTicket->find('all', array('fields' => array('ticket_id', 'SUM(DetalleTicket.monto) as subtotal'), 'group' => array('DetalleTicket.ticket_id')));
+
+
+					$this->set('totales', $totaltickets);
+
+					//Enviando datos de usuario
+					$this->loadModel('TurnoCajero');
+
+					$cajero = $this->TurnoCajero->find('first', array('conditions' => array('TurnoCajero.estadoturno' => 'A', 'TurnoCajero.usuario_id' => $this->Auth->user('id'))));
+
+					$this->set('cajero', $cajero);
+
+					$this->loadModel('DetallePago');
+					$pagos = $this->DetallePago->find('all');
+					$this->set('pagos', $pagos);
+
+	}//FINAL PAGADOS
+
+
+	public function total_pagados() {
+
+		$total = $this->Ticket->find('all', array('fields' => array('Ticket.id', 'SUM(Ticket.montoticket) as total'), 'group' => array('Ticket.id')));
+
+		
+
+	}
+
+
 
 	//Funcion para crear un nuevo ticket
 	public function crear_ticket($idCliente = null) {
 
-		$idUsuario = $this->Auth->user('id');
-
-		if ($idCliente == null || $idUsuario == null) {
-			throw new NotFoundException("El Id del cliente o del usuario no existe", 1);
 			
-		}else{
 			
 			//Recuperando ultimo id de los tickets
 			$datosultimoticket = $this->Ticket->find('first', array('fields', array('Ticket.id', 'Ticket.numeroticket'),'order' => array('Ticket.id' => 'desc'))); 
@@ -314,12 +564,14 @@ class TicketsController extends AppController {
 			$proximo_id_ticket = $id_ultimo_ticket + 1;
 			$proximo_numero_ticket = $numero_ultimo_ticket + 1;
 			$edoTicket = "Atencion";
+			$usuario_id = $this->Auth->user('id');
 
 			//Creamos vector que almacena datos a guardar
-			$datosGuardar = array('numeroticket' => $proximo_numero_ticket,
-								 'estadoticket' => $edoTicket,  
-								 'cliente_id' => $idCliente,
-								 'usuario_id' => $idUsuario);
+			$datosGuardar = array(
+					'numeroticket' => $proximo_numero_ticket,
+					'estadoticket' => $edoTicket,  
+					'cliente_id' => $idCliente,
+					'usuario_id' => $usuario_id);
 
 			//Cambiar estadoturno de cliente de 1 a 0 para eliminar cliente de la lista
 			$this->estadoturnocliente($idCliente);
@@ -336,27 +588,57 @@ class TicketsController extends AppController {
 
 			$this->autoRender = false;
 
-			
-		}
+	
 		
 			
 
 	}//Fin de la function nuevo
 
 
+	public function verificar_usuario_ticket($idTicket = null){
+
+		if ($idTicket == null) {
+			throw new NotFoundException("Error en verificar_usuario_ticket", 1);
+		}
+		
+		$datos = $this->Ticket->find('first', array('conditions' => array('Ticket.borrado' => 0, 'Ticket.id' => $idTicket)));
+
+
+		$estado = $datos['Ticket']['estadoticket'];
+		$usuario = $datos['Ticket']['usuario_id'];
+
+		if ($estado == 'Atencion') {
+			if ($usuario == $this->Auth->user('id')) {
+				return true;
+			}else{
+				return false;
+			}
+		}else{
+			if ($estado == 'Por pagar') {
+				return true;
+			}else{
+				if ($estado == 'Espera') {
+					if ($usuario == $this->Auth->user('id')) {
+						return true;
+					}else{
+						return false;
+					}
+				}
+			}
+		}
+
+
+
+
+	}
+
+
 
 	public function verificar_ticket_en_espera(){
 
-		$idUsuario = $this->Auth->user('id');
-
-		if ($idUsuario == null) {
-
-			throw new NotFoundException("El Id del cliente no existe", 1);
-			
-		}
-
-		$ticket_en_espera = $this->Ticket->find('first', array('conditions' => array('Ticket.borrado' => 0, 'Ticket.usuario_id' => $idUsuario, 'Ticket.estadoticket' => 'Espera')));
-
+	
+		$ticket_en_espera = $this->Ticket->find('first', array('conditions' => array('Ticket.borrado' => 0, 'Ticket.estadoticket' => 'Espera', 'Ticket.usuario_id' => $this->Auth->user('id'))));
+debug($ticket_en_espera);
 
 		if ($ticket_en_espera == null) {
 			
@@ -373,15 +655,9 @@ class TicketsController extends AppController {
 
 	public function verificar_ticket_pendiente() {
 
-		$idUsuario = $this->Auth->user('id');
+	
 
-		if ($idUsuario == null) {
-
-			throw new NotFoundException("El Id del cliente no existe", 1);
-			
-		}
-
-		$ticket_pendiente = $this->Ticket->find('first', array('conditions' => array('Ticket.borrado' => 0, 'Ticket.usuario_id' => $idUsuario, 'Ticket.estadoticket' => 'Atencion')));
+		$ticket_pendiente = $this->Ticket->find('first', array('conditions' => array('Ticket.borrado' => 0, 'Ticket.estadoticket' => 'Atencion', 'Ticket.usuario_id' => $this->Auth->user('id'))));
 
 
 		if ($ticket_pendiente == null) {
@@ -401,49 +677,75 @@ class TicketsController extends AppController {
 	//Funcion para editar un ticket que se encuentra en estado "Por pagar"
 	public function editar($idTicket = null) {
 
-		$idUsuario = $this->Auth->user('id');
 
-		if ($idTicket == null || $idUsuario == null) {
+		if ($idTicket == null ) {
 
-			throw new NotFoundException("El Id del ticket o del usuario no existe", 1);
+			throw new NotFoundException("El Id del ticket no existe", 1);
 			
 		}
 
-		//Comprobamos si el usuario tiene un ticket en Atencion
-		$ticket_actual = $this->verificar_ticket_pendiente();
+		//Comprobar si el ticket no esta siendo atendido por otro usuario
+		$resultado = $this->verificar_usuario_ticket($idTicket);
 
-		$idUsuario = $this->Auth->user('id');
+		if ($resultado == true) {
 
-		$idTicketActual = $ticket_actual['Ticket']['id'];
+			//Comprobamos si el usuario tiene un ticket en Atencion
+			$ticket_actual = $this->verificar_ticket_pendiente();
 
-		if ($ticket_actual == false) {
-			
-		}else{
+			$idTicketActual = $ticket_actual['Ticket']['id'];
 
-			$this->cambiar_ticket_a_espera($idTicketActual);
+			if ($ticket_actual == false) {
+				
+			}else{
 
+				$this->cambiar_ticket_a_espera($idTicketActual);
+
+			}
+
+			$this->cambiar_ticket_a_atencion($idTicket);
+
+			$this->redirect(array('action' => 'ticketactual'));
+				
+		} else {
+			$this->Flash->error(__('El ticket se encuentra siendo editado por otro usuario.'));
+
+			$this->redirect(array('action' => 'index'));
 		}
 
-		$this->cambiar_usuario_de_ticket($idTicket);
-
-		$this->cambiar_ticket_a_atencion($idTicket);
-
-		$this->redirect(array('action' => 'ticketactual'));
+		
 
 
 	}//Fin editar
+
+
+	public function tabla_tickets(){
+
+		$this->layout = 'ajax';
+
+		$this->Ticket->recursive = 0;
+
+		$conditions = array('Ticket.estadoticket' => array('Atencion', 'Espera', 'Por pagar'), 'Ticket.borrado' => 0);
+		$ticket = $this->Ticket->find('all', array('conditions' => $conditions));
+		$this->set('tickets', $ticket, $this->Paginator->paginate());
+
+		$this->loadModel('Usuario');
+
+		$usuarios = $this->Usuario->find('all', array('conditions' => array('Usuario.estadousuario' => 1, 'Usuario.borrado' => 0), 'recursive' => -1));
+
+		$this->set('usuarios', $usuarios);
+
+	}
 
 
 
 	//Funcion para la vista los tickets
 	public function index() {
 
-	
-		$this->Ticket->recursive = 0;
 
-		$conditions = array('Ticket.estadoticket' => array('Atencion', 'Espera', 'Por pagar'));
-		$ticket = $this->Ticket->find('all', array('conditions' => $conditions));
-		$this->set('tickets', $ticket, $this->Paginator->paginate());
+
+		$conditions = array('Ticket.estadoticket' => array('Pagado', 'Facturado'));
+		$ticket = $this->Ticket->find('all', array('conditions' => $conditions, 'order' => array('Ticket.modified' => 'DESC'), 'limit' => 20));
+		$this->set('pagados', $ticket, $this->Paginator->paginate());
 
 		$this->loadModel('DetalleTicket');
 		$detalles = $this->DetalleTicket->find('all');
@@ -455,27 +757,62 @@ class TicketsController extends AppController {
 
 		$this->set('totales', $totaltickets);
 
+		
 
-	}
-
-	//Funcion para la vista del ticket en el que este trabajando un usuario
-	public function ticketactual () {
-
-		$idUsuario = $this->Auth->user('id');
-
-		if ($idUsuario == null) {
-			throw new NotFoundException("Id de Usuario no encontrado", 1);
 		}
 
+	//Funcion para la vista del ticket en el que este trabajando un usuario
+	public function ticketactual() {
+
+	
+		if ($this->request->is('post')) {
+
+			$this->loadModel('Servicio');
+			$idServicio = $this->Servicio->query("SELECT serv.id FROM servicios serv INNER JOIN tservicios ON serv.tservicio_id = tservicios.id AND tservicios.nombretipo = 'INTERNET' ");
+			$idServicio = $idServicio['0']['serv']['id'];
+
+			$monto = $this->request->data['DetalleTicket']['totalalquiler'];
+			$ticket = $this->request->data['DetalleTicket']['ticket_id'];
+			$usuario = $this->request->data['DetalleTicket']['usuario_id'];
+			$this->loadModel('DetalleTicket');
+			$datos = array('cantidad' => 1,
+							'monto' => $monto,
+							'ticket_id' => $ticket,
+							'servicio_id' => $idServicio,
+							'usuario_id' => $usuario);
+			
+				$this->DetalleTicket->create();
+				if ($this->DetalleTicket->save($datos)) {
+
+					$this->Flash->success(__('Servicio añadido.'));
+					return $this->redirect(array('controller' => 'tickets', 'action' => 'ticketactual'));
+				} else {
+					$this->Flash->error(__('El servicio no pudo ser añadido.'));
+				}
+		}
+
+
+
+		//VERIFICAMOS SI 
 		$ticketactual = $this->verificar_ticket_pendiente();
 		$idTicket = $ticketactual['Ticket']['id'];
 
 		
-			if($ticketactual == null){
+			if($ticketactual == false){
 
-				$this->Flash->error(__('El usuario no tiene un ticket actual. Por favor atienda un nuevo cliente.'));
+				$ticketactual = $this->verificar_ticket_en_espera();
+				$idTicket = $ticketactual['Ticket']['id'];
 
-				$this->redirect(array('controller' => 'clientes', 'action' => 'index')); 
+				if($ticketactual == false){
+
+					$this->Flash->error(__('El usuario no tiene un ticket actual. Por favor atienda un nuevo cliente.'));
+
+					$this->redirect(array('controller' => 'clientes', 'action' => 'index')); 
+				} else {
+					$this->cambiar_ticket_a_atencion($idTicket);
+
+					$this->redirect(array('action' => 'ticketactual'));
+				}
 
 			}else {
 
@@ -485,7 +822,7 @@ class TicketsController extends AppController {
 				//ENVIANDO DETALLES DE TICKET
 
 				$this->loadModel('DetalleTicket');
-				$detalles = $this->DetalleTicket->find('all', array('conditions' => array('DetalleTicket.ticket_id' => $idTicket)));
+				$detalles = $this->DetalleTicket->find('all', array('conditions' => array('DetalleTicket.ticket_id' => $idTicket, 'DetalleTicket.borrado' => 0)));
 
 				$this->set(compact('detalles', $detalles));
 
@@ -494,11 +831,25 @@ class TicketsController extends AppController {
 				$this->set('totalticket', $total_ticket);
 
 				$this->loadModel('Servicio');
-				$servicios = $this->Servicio->find('list');
+				$servicios = $this->Servicio->find('list', array('conditions' => array('Servicio.tservicio_id !=' => 2, 'Servicio.precio !=' => 0)));
 				$this->set('listaservicios', $servicios);
+				
+				$conditions = array('Ticket.estadoticket' => array('Pagado', 'Facturado'));
+				$ticket = $this->Ticket->find('all', array('conditions' => $conditions, 'order' => array('Ticket.id' => 'DESC'), 'limit' => 20));
+				$this->set('pagados', $ticket);
+
+				$this->loadModel('Cola');
+			$colas = $this->Cola->find('list', array('fields' => array('id', 'nombre')));
+			$this->set('colas', $colas);
 
 			}
 
+
+
+		$datos = $this->Ticket->find('first', array('conditions' => array('Ticket.borrado' => 0, 'Ticket.id' => $idTicket)));
+
+
+		$this->set('prueba', $datos);
 		
 
 	}//Fin ticketactual
@@ -507,7 +858,6 @@ class TicketsController extends AppController {
 
 	public function guardar_ticket($idTicket = null){
 
-		$idUsuario = $this->Auth->user('id');
 
 		if ($idTicket != null) {
 
@@ -522,6 +872,32 @@ class TicketsController extends AppController {
 
 				$respuesta = $this->cambiar_ticket_a_porpagar($idTicket);
 
+				if ($respuesta == true) {
+
+
+                                                //Guardamos monto en ticket
+                                                $total_ticket = $this->calcular_total_ticket($idTicket);
+
+                                                $montoticket = array('id' => $idTicket, 'montoticket' => $total_ticket);
+                                                if ($this->Ticket->saveAll($montoticket)) {
+                                                                //GUARDADO
+                                                }else{
+                                                        $this->Flash->error(__('El servicio no pudo ser añadido. Error al ingresar el monto en el ticket'));
+                                                }
+
+
+                                        $this->Flash->success(__('Ticket procesado exitosamente'));
+
+                                        $this->redirect(array('controller' => 'clientes', 'action' => 'index'));
+
+
+                                }else {
+
+                                        $this->Flash->error(__('Error al procesar ticket.'));
+
+                                }
+
+
 						
 				//Buscamos si el usuario tiene un ticket en espera
 				$respuesta_2 = $this->verificar_ticket_en_espera();
@@ -534,8 +910,9 @@ class TicketsController extends AppController {
 
 					$this->cambiar_ticket_a_atencion($idTicketEspera);
 
-				}
+					$this->redirect(array('action' => 'ticketactual'));
 
+				}
 
 				if ($respuesta == true) {
 
@@ -676,7 +1053,10 @@ class TicketsController extends AppController {
 			throw new NotFoundException("Id del ticket no encontrado en cambiar ticket a atencion", 1);
 		}
 
-		$datos = array('id' => $idTicket, 'estadoticket' => 'Atencion');
+		$datos = array(
+			'id' => $idTicket,
+			'estadoticket' => 'Atencion',
+			'usuario_id' => $this->Auth->user('id'));
 		
 
 		if ($this->Ticket->saveAll($datos)) {
@@ -693,6 +1073,30 @@ class TicketsController extends AppController {
 	}//Fin cambiar ticket a atencion
 
 
+	//Funcion para cambiar el estado de un ticket a Facturado
+	public function cambiar_ticket_a_facturado($idTicket = null) {
+
+		if ($idTicket == null) {
+			throw new NotFoundException("Id del ticket no encontrado en cambiar ticket a atencion", 1);
+		}
+
+		$datos = array('id' => $idTicket, 'estadoticket' => 'Facturado');
+		
+
+		if ($this->Ticket->saveAll($datos)) {
+			//Guardado exitoso
+
+		}else{
+
+			$this->Flash->error(__('Error al cambiar el estado de del ticket a facturado.'));
+
+		}
+
+		
+
+	}//Fin cambiar ticket a facturado
+
+
 	//Funcion para cambiar el estado de un ticket a Por pagar
 	public function cambiar_ticket_a_porpagar($idTicket = null) {
 
@@ -700,7 +1104,10 @@ class TicketsController extends AppController {
 			throw new NotFoundException("Id del ticket no encontrado en cambiar ticket a por pagar", 1);
 		}
 
-		$datos = array('id' => $idTicket, 'estadoticket' => 'Por pagar');
+		$datos = array(
+			'id' => $idTicket, 
+			'estadoticket' => 'Por pagar',
+			'usuario_id' => '');
 		
 
 		if ($this->Ticket->saveAll($datos)) {
@@ -717,11 +1124,22 @@ class TicketsController extends AppController {
 	//Funcion para cambiar el estado de un ticket a pagado
 	public function cambiar_ticket_a_pagado($idTicket = null) {
 
+		//Buscamos el turno activo
+		$this->loadModel('TurnoCajero');
+		$turnoCajero = $this->TurnoCajero->find('first', array('conditions' => array('TurnoCajero.estadoturno' => 'A')));
+
+		$idTurno = $turnoCajero['TurnoCajero']['id'];
+
+		if ($idTurno == null) {
+			throw new NotFoundException("Id del turno no encontrado en cambiar ticket a por pagar", 1);
+		}
+
+		
 		if ($idTicket == null) {
 			throw new NotFoundException("Id del ticket no encontrado en cambiar ticket a por pagar", 1);
 		}
 
-		$datos = array('id' => $idTicket, 'estadoticket' => 'Pagado');
+		$datos = array('id' => $idTicket, 'estadoticket' => 'Pagado', 'turno_cajero_id' => $idTurno);
 		
 
 		if ($this->Ticket->saveAll($datos)) {
@@ -744,7 +1162,7 @@ class TicketsController extends AppController {
 			throw new NotFoundException("Id del ticket no encontrado en cambiar ticket a por pagar", 1);
 		}
 
-		$datos = array('id' => $idTicket, 'estadoticket' => 'Cancelado');
+		$datos = array('id' => $idTicket, 'estadoticket' => 'Cancelado', 'borrado' => 1);
 		
 
 		if ($this->Ticket->saveAll($datos)) {
@@ -760,31 +1178,6 @@ class TicketsController extends AppController {
 
 
 
-
-	public function cambiar_usuario_de_ticket($idTicket = null) {
-
-		$idUsuario = $this->Auth->user('id');
-
-		if ($idUsuario == null || $idTicket == null) {
-
-			throw new NotFoundException("Id de usuario o de ticket no encontrado", 1);
-			
-		}
-
-		$datos = array('id' => $idTicket, 'usuario_id' => $idUsuario);
-		
-
-		if ($this->Ticket->saveAll($datos)) {
-			//Guardado exitoso
-
-		}else{
-
-			$this->Flash->error(__('Error al cambiar el estado de del ticket a atencion.'));
-
-		}
-
-
-	}//Fin cambiar usuario de ticket
 
 
 
@@ -958,6 +1351,10 @@ class TicketsController extends AppController {
 		//Guardamos monto en ticket
 		$total_ticket = $this->calcular_total_ticket($idTicket);
 
+		if ($total_ticket == null) {
+			$total_ticket = 0;
+		}
+
 		$montoticket = array('id' => $idTicket, 'montoticket' => $total_ticket);
 		if ($this->Ticket->saveAll($montoticket)) {
 			//GUARDADO
@@ -1022,8 +1419,50 @@ class TicketsController extends AppController {
 
 				$this->set('pagado', $totalpagado);
 
-				
+				$conditions = array('Ticket.estadoticket' => 'Por pagar', 'Ticket.id' => $idTicket);
+				$ticket = $this->Ticket->find('all', array('conditions' => $conditions, 'recursive' => 0));
+				$this->set('tickets', $ticket);
+
+								
 	}//Fin function ver
+
+	public function detalles($idTicket = null) {
+
+		if (!$this->Ticket->exists($idTicket)) {
+			throw new NotFoundException(__('Id de ticket no válido '));
+		}
+
+		if ($this->request->is('post')) {
+			//debug($this->request->data);
+			$formapago = $this->request->data['Ticket']['forma_pago'];
+			$idTicket = $this->request->data['Ticket']['IdTicket'];
+
+			$this->ingresar_pago($formapago, $idTicket);
+		}
+
+				//Buscamos y enviamos el detalle de ticket a cobrar
+				$this->loadModel('DetalleTicket');
+				$detalles = $this->DetalleTicket->find('all', array('conditions' => array('DetalleTicket.ticket_id' => $idTicket)));
+
+				$this->set(compact('detalles', $detalles, $this->Paginator->paginate()));
+
+				//Calculamos y enviamos el total del ticket a cobrar
+				$total_ticket = $this->calcular_total_ticket($idTicket);
+
+				$this->set('totalticket', $total_ticket);
+
+				$this->set('idTicket', $idTicket);
+
+
+
+				$totaltickets = $this->DetalleTicket->find('all', array('fields' => array('ticket_id', 'SUM(DetalleTicket.monto) as subtotal'), 'group' => array('DetalleTicket.ticket_id')));
+
+				$totalpagado = $this->Ticket->DetallePago->find('all', array('conditions' => array('DetallePago.ticket_id' => $idTicket), 'fields' => array('ticket_id', 'SUM(DetallePago.total) as subtotal')));
+
+				$this->set('pagado', $totalpagado);
+
+								
+	}//Fin function detalles
 
 	//Procesar cobro de un ticket
 	public function procesar_ticket($idTicket = null) {
@@ -1033,16 +1472,94 @@ class TicketsController extends AppController {
 		}
 
 		$resultado = $this->cambiar_ticket_a_pagado($idTicket);
-
+		//$resultado = true;
 		if ($resultado == true) {
 			$this->Flash->success(__('Ticket procesado exitosamente.'));
+
+			//Averiguamos como se estan evaluando las facturas si por tickets o por monto en bolivares
+			$this->loadModel('Configuration');
+			$tipo = $this->Configuration->query("SELECT tipo FROM configurations");
+			//debug($tipo);
+
+			if ($tipo == null) {
+				throw new NotFoundException("No ha sido configurada la frecuencia de la facturación", 1);
+			}
+
+			$tipo = $tipo[0]['configurations']['tipo'];
+
+			if ($tipo == 'TICKETS') {
+				$medida = $this->Configuration->query("SELECT ticket FROM configurations");
+				$medida = $medida[0]['configurations']['ticket'];
+			}else{
+				if($tipo == 'MONTO'){
+					$medida = $this->Configuration->query("SELECT monto FROM configurations");
+					$medida = $medida[0]['configurations']['monto'];
+				}
+			}
+			//debug($tipo);
+			//debug($medida);
+			//VERIFICAMOS SI ES MOMENTO DE FACTURAR LOS TICKETS
+			$resultado = $this->verificar_si_facturar($tipo, $medida);
+			//debug($resultado);
+			if ($resultado == 'FACTURAR') {
+				$this->Flash->facturar(__('ES MOMENTO DE EMITIR UNA FACTURA...'));
+			}
+
+
 			return $this->redirect(array('controller' => 'tickets', 'action' => 'caja'));
 		}else{
 			$this->Flash->error(__('Ticket no procesado.'));
 		}
 
-
+		//$this->autoRender = false;
 	}//Fin cobrar ticket
+
+	public function verificar_si_facturar($tipo = null, $medida = null){
+
+		if ($tipo == null || $medida == null) {
+			throw new NotFoundException("El tipo de consulta no pudo ser hallado", 1);
+			
+		}
+
+		if ($tipo == 'TICKETS') {
+			$tickets = $this->Ticket->query(
+			"SELECT COUNT(tickets.id) AS CANTIDAD 
+			FROM tickets, turno_cajeros
+			WHERE tickets.estadoticket = 'Pagado'
+			AND tickets.turno_cajero_id = turno_cajeros.id");
+			
+			$tickets = $tickets[0][0]['CANTIDAD'];
+			//debug($tickets);
+			//debug($medida);
+			if ($tickets >= $medida) {
+				$resultado = 'FACTURAR'; 	
+			} else {
+				$resultado = 'NO FACTURAR';
+			}	
+
+		}else{
+
+
+		$this->loadModel('DetalleTicket');
+
+		$monto = $this->DetalleTicket->query("SELECT SUM(dt.monto) AS total FROM detalle_tickets dt 
+			INNER JOIN tickets tick ON (dt.ticket_id = tick.id) 
+			INNER JOIN turno_cajeros tc ON(tc.estadoturno = 'A') 
+			WHERE tick.estadoticket = 'Pagado'");
+		
+		$monto = $monto[0][0]['total'];
+		//debug($monto);
+		if ($monto >= $medida) {
+				$resultado = 'FACTURAR';
+			}else{
+				$resultado = 'NO FACTURAR';
+			}
+
+		}
+
+		return $resultado;
+
+	}
 
 
 	//Aca se evalua que tipo de pago se va a generar
@@ -1079,7 +1596,67 @@ class TicketsController extends AppController {
 
 	}
 
+	public function add()
+{
 
+}
+
+
+	public function tabla_caja() {
+		$this->layout = 'ajax';
+			$this->Ticket->recursive = 0;
+
+			$conditions = array('Ticket.estadoticket' => array('Por pagar'));
+			$ticket = $this->Ticket->find('all', array('conditions' => $conditions));
+			$this->set('tickets', $ticket, $this->Paginator->paginate());
+	}
+
+	public function tabla_administrar() {
+		$this->layout = 'ajax';
+			$this->Ticket->recursive = 0;
+
+			$conditions = array('Ticket.estadoticket' => array('Por pagar'));
+			$ticket = $this->Ticket->find('all', array('conditions' => $conditions));
+			$this->set('tickets', $ticket, $this->Paginator->paginate());
+	}
+
+
+	public function facturar(){
+
+		if ($this->request->is('post')) {
+			# code...
+		}
+
+		$this->loadModel('Servicio');
+		$datos_a_facturar = $this->Servicio->query(
+			"SELECT tservicios.nombretipo AS tipo, SUM(detalle_tickets.monto) AS total
+				FROM tickets, detalle_tickets, servicios, usuarios, turno_cajeros, tservicios
+				WHERE tservicios.id = servicios.tservicio_id
+                AND servicios.id = detalle_tickets.servicio_id
+				AND detalle_tickets.ticket_id = tickets.id
+				AND tickets.turno_cajero_id = turno_cajeros.id
+				AND turno_cajeros.usuario_id = usuarios.id
+				AND tickets.estadoticket = 'Pagado'
+				AND turno_cajeros.estadoturno = 'A'
+				GROUP BY tservicios.nombretipo");
+
+		$this->set('datos', $datos_a_facturar);
+
+		$total = $this->Servicio->query(
+			"SELECT SUM(detalle_tickets.monto) AS total
+			FROM servicios, detalle_tickets, tickets, usuarios, turno_cajeros 
+			WHERE detalle_tickets.servicio_id = servicios.id 
+			AND detalle_tickets.ticket_id = tickets.id 
+			AND tickets.turno_cajero_id = turno_cajeros.id 
+			AND turno_cajeros.usuario_id = usuarios.id 
+			AND turno_cajeros.estadoturno = 'A' 
+			AND tickets.estadoticket = 'Pagado'");
+
+		$this->set('total', $total);
+
+
+
+	}
 
 
 } //FIN CLASE

@@ -42,7 +42,10 @@
       <?php echo $this->Form->button("<i class='fa fa-save'></i> Grabar", array(
         'type' => 'submit', 'class' => 'btn btn-success pull-left', 'escape' => false)); 
       ?>
-      <?php if ($current_user['Privilegio']['id'] != 1 || $current_user['Privilegio_id']['id'] != 2) { ?>
+
+      <?php $privilegio = $this->Session->read('privilegio_id'); ?>
+
+      <?php if ($privilegio != 1 || $privilegio != 2) { ?>
 
       <?php echo $this->Html->link("<i class='fa fa-arrow-left'></i> Volver", array('controller' => 'principal', 'action' => 'index',),array('type' => 'submit', 'class' => 'btn btn-danger pull-right', 'escape' => false)); 
       ?>

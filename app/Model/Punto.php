@@ -9,6 +9,13 @@ App::uses('AppModel', 'Model');
 class Punto extends AppModel {
 
 /**
+ * Display field
+ *
+ * @var string
+ */
+	public $displayField = 'id';
+
+/**
  * Validation rules
  *
  * @var array
@@ -23,6 +30,16 @@ class Punto extends AppModel {
 				//'last' => false, // Stop validation after this rule
 				//'on' => 'create', // Limit validation to 'create' or 'update' operations
 			),
+			'notBlank' => array(
+				'rule' => array('notBlank'),
+				'message' => 'El campo no debe estar vacio',
+				//'allowEmpty' => false,
+				//'required' => false,
+				//'last' => false, // Stop validation after this rule
+				//'on' => 'create', // Limit validation to 'create' or 'update' operations
+			),
+		),
+		'codigoaprobado' => array(
 			'notBlank' => array(
 				'rule' => array('notBlank'),
 				'message' => 'El campo no debe estar vacio',

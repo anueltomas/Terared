@@ -1,54 +1,70 @@
-<div class="bancos index">
-	<h2><?php echo __('Bancos'); ?></h2>
-	<table cellpadding="0" cellspacing="0">
-	<thead>
-	<tr>
-			<th><?php echo $this->Paginator->sort('id'); ?></th>
-			<th><?php echo $this->Paginator->sort('nombrebanco'); ?></th>
-			<th><?php echo $this->Paginator->sort('created'); ?></th>
-			<th><?php echo $this->Paginator->sort('modified'); ?></th>
-			<th><?php echo $this->Paginator->sort('estadobanco'); ?></th>
-			<th><?php echo $this->Paginator->sort('borrado'); ?></th>
-			<th class="actions"><?php echo __('Actions'); ?></th>
-	</tr>
-	</thead>
-	<tbody>
-	<?php foreach ($bancos as $banco): ?>
-	<tr>
-		<td><?php echo h($banco['Banco']['id']); ?>&nbsp;</td>
-		<td><?php echo h($banco['Banco']['nombrebanco']); ?>&nbsp;</td>
-		<td><?php echo h($banco['Banco']['created']); ?>&nbsp;</td>
-		<td><?php echo h($banco['Banco']['modified']); ?>&nbsp;</td>
-		<td><?php echo h($banco['Banco']['estadobanco']); ?>&nbsp;</td>
-		<td><?php echo h($banco['Banco']['borrado']); ?>&nbsp;</td>
-		<td class="actions">
-			<?php echo $this->Html->link(__('View'), array('action' => 'view', $banco['Banco']['id'])); ?>
-			<?php echo $this->Html->link(__('Edit'), array('action' => 'edit', $banco['Banco']['id'])); ?>
-			<?php echo $this->Form->postLink(__('Delete'), array('action' => 'delete', $banco['Banco']['id']), array('confirm' => __('Are you sure you want to delete # %s?', $banco['Banco']['id']))); ?>
-		</td>
-	</tr>
-<?php endforeach; ?>
-	</tbody>
-	</table>
-	<p>
-	<?php
-	echo $this->Paginator->counter(array(
-		'format' => __('Page {:page} of {:pages}, showing {:current} records out of {:count} total, starting on record {:start}, ending on {:end}')
-	));
-	?>	</p>
-	<div class="paging">
-	<?php
-		echo $this->Paginator->prev('< ' . __('previous'), array(), null, array('class' => 'prev disabled'));
-		echo $this->Paginator->numbers(array('separator' => ''));
-		echo $this->Paginator->next(__('next') . ' >', array(), null, array('class' => 'next disabled'));
-	?>
+<div class="box box-primary box-solid">
+	<div class="box-header with-border">
+		<h3 class="box-title"><i class="fa fa-list-alt"></i> Bancos Transferencias</h3>
+		<div class="box-tools pull-right">
+			<button class="btn btn-box-tool" data-widget="collapse">
+				<i class="fa fa-minus"></i>
+			</button>
+		</div>
 	</div>
+
+     <div class="box-footer">
+		<div class="form-group">
+			
+			<?php echo $this->Html->link("<i class='fa fa-plus'></i> Nuevo", array(
+				'action' => 'add'),array('class' => 'btn btn-primary pull-left', 'escape' => false)); 
+			?>		
+		</div>
+	</div>
+
+	<div class="box-body">
+	
+      <div class="col-md-6 col-md-offset-1">
+		<div class="table-responsive">
+			<table class="table">
+				<thead>
+					<tr>
+						<th>Denominación</th>
+						<th>Estado</th>
+						<th class="actions"><?php echo __('Acciones'); ?></th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php foreach ($bancos as $banco): ?>
+						
+					<tr>
+						<td><?php echo h($banco['Banco']['nombrebanco']); ?>&nbsp;</td>
+
+						<?php //COMPROBANDO SI EL PUNTO ESTA ACTIVO ?>
+						<?php if($banco['Banco']['estadobanco'] == true){ ?>
+
+						<td><div class="label label-success">Activo</div></td>
+
+						<?php }else{ ?>
+						
+						<td><div class="label label-danger">Inactivo</div></td>
+						
+						<?php } ?>
+						
+						
+						<td class="actions">
+							<?php echo $this->Html->link(__('Editar'), array('action' => 'edit', $banco['Banco']['id']), array('class' => 'btn btn-sm btn-primary')); ?>
+							<?php echo $this->Form->postLink(__('Delete'), array('action' => 'delete', $banco['Banco']['id']), array('class' => 'btn btn-sm btn-danger', 'confirm' => __('Are you sure you want to delete # %s?', $banco['Banco']['id']))); ?>
+						</td>
+
+						
+					</tr>
+
+					<?php endforeach; ?>
+				</tbody>
+			</table>
+			
+		</div>
+		</div>
+	</div>
+	
+	
 </div>
-<div class="actions">
-	<h3><?php echo __('Actions'); ?></h3>
-	<ul>
-		<li><?php echo $this->Html->link(__('New Banco'), array('action' => 'add')); ?></li>
-		<li><?php echo $this->Html->link(__('List Transferencias'), array('controller' => 'transferencias', 'action' => 'index')); ?> </li>
-		<li><?php echo $this->Html->link(__('New Transferencia'), array('controller' => 'transferencias', 'action' => 'add')); ?> </li>
-	</ul>
-</div>
+
+
+

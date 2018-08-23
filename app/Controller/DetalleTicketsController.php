@@ -163,11 +163,43 @@ class DetalleTicketsController extends AppController {
 		if ($this->request->is('ajax')) {
 			$idServicio = $this->request->data['idServicio'];
 			$idTicket = $this->request->data['idTicket'];
-			if ($this->DetalleTicket->delete($idServicio)) {
-				$this->Flash->success(__('Servicio removido.'));
-			} else {
-				$this->Flash->error(__('El servicio no pudo ser removido.'));
+			$idUsuario = $this->Auth->user('id');
+
+			//EVALUAMOS SI EL USUARIO QUE INTENTA ELIMINAR EL SERVICIO FUE EL QUE LO CREO
+			$datosServicio = $this->DetalleTicket->find('first', array('conditions' => array('DetalleTicket.id' => $idServicio, 'DetalleTicket.ticket_id' => $idTicket, 'DetalleTicket.usuario_id' => $idUsuario)));
+//debug($datosServicio);
+			if ($datosServicio == null) {
+
+				$privilegio = $this->Session->read('privilegio_id');
+
+				if ($privilegio == 1 || $privilegio == 2) {
+					
+						$datos = array('id' => $idServicio, 'borrado' => 1);
+
+						if ($this->DetalleTicket->save($datos)) {
+							$this->Flash->success(__('Servicio removido.'));
+						} else {
+							$this->Flash->error(__('El servicio no pudo ser removido.'));
+						}
+
+				}else{
+
+					$this->Flash->error(__('Usted no ingresó éste servicio, por lo tanto no puede eliminarlo.'));
+				}
+				
+			}else{
+				
+					$datos = array('id' => $idServicio, 'borrado' => 1);
+
+						if ($this->DetalleTicket->save($datos)) {
+							$this->Flash->success(__('Servicio removido.'));
+						} else {
+							$this->Flash->error(__('El servicio no pudo ser removido.'));
+						}
+
 			}
+
+			
 		}
 		
 		$total_servicios = $this->DetalleTicket->find('all', array('conditions' => array('DetalleTicket.ticket_id' => $idServicio, 'DetalleTicket.servicio_id' => $idTicket), 'fields' => array('SUM(DetalleTicket.monto) as subtotal')));
@@ -178,17 +210,6 @@ class DetalleTicketsController extends AppController {
 
 		$this->autoRender = false;
 
-		/*$this->DetalleTicket->id = $id;
-		if (!$this->DetalleTicket->exists()) {
-			throw new NotFoundException(__('Id del detalle del ticket no válido'));
-		}
-		$this->request->allowMethod('post', 'delete');
-		if ($this->DetalleTicket->delete()) {
-			$this->Flash->success(__('El servicio ha sido removido.'));
-		} else {
-			$this->Flash->error(__('El servicio no pudo ser removido.'));
-		}
-		return $this->redirect(array('controller' => 'tickets', 'action' => 'ticketactual', $idUsuario));*/
 
 
 	}

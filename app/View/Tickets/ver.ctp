@@ -1,7 +1,6 @@
 <?php //debug($totales); ?>
 <?php //debug($detalles); ?>
 <?php //debug($tickets); ?>
-<?php //debug($pagado); ?>
 
 <div class="box box-danger box-solid">
 	<div class="box-header with-border">
@@ -21,13 +20,27 @@
 		
 	<?php endif ?>
 
+	<?php 
+
+			$deuda = $totalticket - $total_pagado;
+
+	 ?>
+
 	
 
 	<div class="box-body">
+
+
 	
 <?php //debug($detalles) ?>
 <?php //debug($datosTicket) ?>
       <div class="col-md-10 col-md-offset-1">
+      <h4>
+      	Cliente: <?php echo $tickets[0]['Cliente']['nombre']; ?>
+      	<br><br>
+      	N° Ticket: <?php echo $tickets[0]['Ticket']['numeroticket']; ?>
+      </h4>
+	<br>
 		<div class="table-responsive">
 			<table class="table">
 				<thead>
@@ -62,30 +75,47 @@
 			</table>
 
 			<?php echo $this->Form->create('Ticket'); ?>
-
+			<br>
 				<div class="row-fluid">
 
-		                  <div class="col-md-4">
+		                  <div class="col-md-3">
 		                  
 		                  		<?php echo $this->Form->input('forma_pago', array('label' => 'Forma de Pago', 'options' => array('Punto','Efectivo', 'Transferencia'), 'class' => 'form-control', 'Default' => 'Punto')) ?>
 		                  </div>
 
-                </div>
-
+                
+		                
 
                
 
-		                  <div class="col-md-4">
+		                  <div class="col-md-5 pull-right">
 		                  	<label>Monto Pagado</label>
 		                  		<div class="input-group">
 			                  		<?php echo $this->Form->input('', array('label' => false, 'class' => 'form-control', 'Default' => 'Punto', 'disabled' => true, 'value' => number_format($total_pagado, 2,",","."))); ?> 
 			                  		<span class="input-group-btn">
-				                      <?php echo $this->Html->link('Detalle de pagos', array('controller' => 'detallePagos', 'action' => 'detalle_pagos', $idTicket), array('class' => 'btn btn-primary')); ?>
+				                      <?php echo $this->Html->link('Detalle', array('controller' => 'detallePagos', 'action' => 'detalle_pagos', $idTicket), array('class' => 'btn btn-primary')); ?>
 				                    </span>
 			                    </div>
 
 		                  </div>
-        
+
+
+        				
+
+
+		                  
+        		</div>
+
+        		<br><br><br><br>
+
+        	<div class="row-fluid">
+				<h3 class="pull-left">
+	  				<span class="total">Adeuda:</span>
+					
+	    				<?php echo number_format($deuda, 2,",","."); ?> Bs.
+					</span>
+				</h3>
+			</div>
 
            <div class="row-fluid">
 			<h3 class="pull-right">

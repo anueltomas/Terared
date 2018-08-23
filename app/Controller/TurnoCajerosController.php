@@ -18,7 +18,9 @@ class TurnoCajerosController extends AppController {
 	public function isAuthorized($usuario)
 	{
 
-		if ($usuario['privilegio_id'] == '4') {
+		$privilegio = $this->Session->read('privilegio_id');
+
+		if ($privilegio_id === '4') {
 
 			
 				if (in_array($this->action, array('add', 'cerrar'))) {
@@ -62,6 +64,8 @@ class TurnoCajerosController extends AppController {
  * @return void
  */
 	public function add() {
+
+		//
 
 		$datos = array('usuario_id' => $this->Auth->user('id'), 'estadoturno' => 'A');
 

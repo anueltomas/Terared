@@ -1,0 +1,215 @@
+*************************************************************************************
+																					*
+**==> PARA USAR LA CONSOLA DE BAKE 													*
+																					*
+==>>>> teraredMay18/app/Console/cake BAKE                                           *
+																					*
+*************************************************************************************
+
+EN ESTA ETAPA SE CONSTRUIRA EL MODULO DE SERVICIOS, DONDE SE PODRAN AGREGAR, EDITAR Y DESHABILITAR LOS SERVICIOS.
+
+**********************************  FUNCIONALIDADES REALIZADAS  ***********************************
+
+OK Busqueda predictiva de servicios
+
+OK Control de acceso
+
+OK CONFIGURAR LAS VISTAS DEL MODULO DE TRANSCRIPTORES
+
+OK ELIMINAR DE FORMA LOGICA LOS TRANSCRIPTORES
+
+OKCOMPROBAR EL REINGRESO DE LA CONTRASEÑA DE UN USUARIO
+
+OK CUANDO UN USUARIO ESTE INACTIVO NO PUEDA INGRESAR AL SISTEMA
+
+OK EL LISTA DE USUARIOS CAMBIAR ESTADO POR UN BOTON DE ACTIVADO O DESACTIVADO
+
+OK FORMATEAR FECHA EN LISTA DE USUARIOS
+
+OK En servicios, cuando se haga una busqueda predictiva, y se haga click o enter, enviar dicha informacion a la pagina de editar
+
+OK Arreglar mensaje de no se puede acceder para que no aparezca encima
+
+
+**********************************  FUNCIONALIDADES PENDIENTES  **********************************
+
+
+-DARLE FUNCIONALIDAD AL BOTON ACTIVADO TANTO EN EL LISTADO DE USUARIOS COMO DE LOS SERVICIOS
+
+-CUANDO SE CIERRE EL NAVEGADOR, SOLICITAR CREDENCIALES NUEVAMENTE AL USUARIO
+
+-Agregar texbox en precio de servicios y preguntar si desea guardar ese monto.
+
+-Activar las paginaciones
+
+-Cuando un transcriptor seleccione un servicio en la busqueda predictiva, aparezca un modal con la vista de este servicio
+
+OK - CAMBIAR IMAGEN DE USUARIO
+
+-Auditoria de bd
+
+-respaldo de bd
+
+-BD ESPEJO
+
+-MODULO PARA GESTIONAR LOS TIPOS DE SERVICIO
+
+OK-Desaparecer el transcriptor 1
+
+-darle color a index cliente
+
+-Cuando un usuario transcriptor modifique su contraseña preguntar si realmente desea modificarla
+
+-Cuando un usuario transcritor modifique su contraseña pedirle que ingrese la contraseña actual
+
+-Cuando un usuario ingrese un servicio prestado a un cliente determine si se le entregara un documento
+
+-Agregar opcion de anular un ticket que solo puede ser ejecutada por un usuario administrador, el ticket pasa de estar en PAGADO a Anulado
+
+OK -Permitir a un usuario cancelar el ticket que tenga activo, el ticket pasa de estar en Atencion a Cancelado y borrado en 1
+
+-Dar funcionalidad al sistema que cuando se instale por primera vez, se guarde un usuario root.
+
+OK-Cuando se cree el modulo ticket express, el sistema consultara en la bd si existe el servicio internet, donde se ingresaran los alquileres y este servicio permitira ingresar un monto por vez
+
+-Abrir y cerrar caja
+
+ OK -No permitir procesar un ticket sin servicios agregados
+
+-Al cerrar caja presentar resumen de ingresos y gastos, pagos por ptos, transf y efectivo, resumen por transcriptores y por servicios
+
+-Permitir a un administrador editar o eliminar tickets y detalles de un ticket que este modificando otro usuario
+
+-02-06-18-
+-Activar modulo de documentos --->>>Se agrego un modal para que visualicen los tickets que fueron pagados, falta añadirle funcionalidad para que  marquen si entregaron o no el documento
+OK-Activar ticket express
+OK-Activar configuracion
+-Activar gestion de bancos 
+OK-Activar facturación
+OK-Crear resumenes
+-Cierre de caja
+OK-En pago de ticket, agregar un label que indique cuanto se esta debiendo.
+OK-Permitir a un administrar modificar los precios globalmente por porcentaje y redondear la cifra
+OK-Ocultar servicio de internet de todos los usuarios menos el de cyber
+-Configurar modulo transferencias
+
+------------------------------------------------------
+12-06-18
+OK-Crear un campo en tabla cierre donde se ingrese una observacion con respecto al cierre del turno
+
+-Mejorar presentacion en los banco de las transferencias
+
+-Añadir en sitebar un enlace llamado Estadisticas que podrá ser visto por los administradores y contendra estadisticas por transcriptores y por servicios
+	-Clientes atendidos
+	-Dinero recabado
+
+-Crear una tabla para una lista de requerimientos de insumos del cyber con su respectivo modulo
+
+-Crear una tabla para manejar una lista de requerimientos técnicos del cyber con su respectivo modulo
+
+-Permitirle a los administradores editar los pagos de los tickets
+
+-Permitirle a los administradores anular tickets ya pagados
+
+-Permitirle a los administradores anular facturas de tickets
+
+OK-Permitirle a los administradores ver detalles en los resumenes de cierre
+
+-Añadir en resumen->principal->ver un boton para que el administrador vea en detalle los clientes que efectuaron pago en el turno de cada cajero  asi como detallar los ticket y los pagos.
+
+
+
+
+**********************************  DETALLES PENDIENTES  **********************************
+
+-Boton volver de editarpassword debe volver a usuarios/index si es administrador y a principal si es transcriptor
+
+OK - Si username de usuario es igual a otro, mostrar mensaje de validacion en el formulario
+
+-Al borrar el texto en el campo contraseña, se borre el de comprobar la contraseña
+
+-Pintar el mensaje cuando no pueda ser editado un campo
+
+-Mostrar en el combobox de registrar nuevo usuario->transcriptor, tanto el nombre como el apellido.
+
+-Enmascarar telefonos
+
+-Enmascarar cedulas
+
+-Enmascarar montos dinero.
+
+-Eliminar mensaje success o error automaticamente.
+
+OK -Cambiar iconos de menu de lado
+
+-Mejorar presentacion de los detalles en ticket actual
+
+-NO PERMITIR QUE POR URL SE PUEDA EDITAR EL PRIVILEGIO ROOT
+
+*****************************  NUEVOS CAMBIOS  *************************
+
+
+-Se alteró la tabla transcriptors por trabajadores*, eliminado la relacion de transcriptors->detalle_tickets y creada usuarios_detalle_tickets en el modelo
+
+-Ordenar lista de servicios por orden alfabetico
+
+
+*****************************  CONSULTAS  *************************
+
+-Por transcriptor por cajero por periodo
+
+-POr servicio, por cajero, por periodo
+
+-Clientes atendidos por transcriptor en un periodo
+
+-
+
+*****************************  FIN  *************************
+
+*****************************  DATOS QUE DEBE TENER LA BD PARA IMPLEMENTARLA***************
+-TIPOS DE SERVICIOS: DOCUMENTOS-SERVICIOS-INTERNET
+
+-Debe existir un tipo de servicio llamado internet asi como su servicio y debe ser el primero en ser creado
+
+-Crear Los privilegios en el siguiente orden:
+ROOT-ADMINISTRADOR-TRANSCRIPTOR-CAJERO-CYBER
+
+-TIPOS DE SERVICIOS: INTERNET, DOCUMENTOS, SERVICIOS
+
+-BANCO DE LOS PUNTOS
+
+-BANCOS  PARA LAS TRANSFERENCIAS
+
+-REPORTE X/Z INICIAL
+
+-TENER LA FECHA DE LA FACTURACIÓN CON AMBOS DATOS CARGADOS, TANTO MONTO COMO TICKET Y DEJAR SELECCIONADO CON EL QUE SE VA A TRABAJAR
+
+*****************************  FIN  *************************
+
+
+
+
+SELECT facturas.nfactura FROM facturas, tickets, usuarios, turno_cajeros 
+WHERE facturas.id = tickets.factura_id
+AND tickets.usuario_id = usuarios.id
+AND usuarios.id = turno_cajeros.usuario_id
+AND turno_cajeros.estadoturno = 'A'
+ORDER BY facturas.id ASC
+LIMIT 1
+
+SELECT facturas.nfactura FROM facturas, tickets, usuarios, turno_cajeros 
+WHERE facturas.id = tickets.factura_id
+AND tickets.usuario_id = usuarios.id
+AND usuarios.id = turno_cajeros.usuario_id
+AND turno_cajeros.estadoturno = 'A'
+ORDER BY facturas.id DESC
+LIMIT 1
+
+
+
+//02-07-18
+
+Agregar boton en ticket actual que diga "Dejar de atender cliente"
+si no tiene servicios añadidos, devolver cliente a la cola
+
+

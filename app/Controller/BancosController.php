@@ -22,8 +22,10 @@ class BancosController extends AppController {
  */
 	public function index() {
 		$this->Banco->recursive = 0;
-		$this->set('bancos', $this->Paginator->paginate());
+		$bancos = $this->Banco->find('all', array('conditions' => array('Banco.borrado' => 0)));
+		$this->set('bancos', $bancos, $this->Paginator->paginate());
 	}
+
 
 /**
  * view method
@@ -49,10 +51,10 @@ class BancosController extends AppController {
 		if ($this->request->is('post')) {
 			$this->Banco->create();
 			if ($this->Banco->save($this->request->data)) {
-				$this->Flash->success(__('The banco has been saved.'));
+				$this->Flash->success(__('El banco ha sido guardado.'));
 				return $this->redirect(array('action' => 'index'));
 			} else {
-				$this->Flash->error(__('The banco could not be saved. Please, try again.'));
+				$this->Flash->error(__('La información no pudo ser almacenada.'));
 			}
 		}
 	}
@@ -70,10 +72,10 @@ class BancosController extends AppController {
 		}
 		if ($this->request->is(array('post', 'put'))) {
 			if ($this->Banco->save($this->request->data)) {
-				$this->Flash->success(__('The banco has been saved.'));
+				$this->Flash->success(__('El banco ha sido guardado.'));
 				return $this->redirect(array('action' => 'index'));
 			} else {
-				$this->Flash->error(__('The banco could not be saved. Please, try again.'));
+				$this->Flash->error(__('La información no pudo ser almacenada.'));
 			}
 		} else {
 			$options = array('conditions' => array('Banco.' . $this->Banco->primaryKey => $id));
@@ -93,8 +95,8 @@ class BancosController extends AppController {
 		if (!$this->Banco->exists()) {
 			throw new NotFoundException(__('Invalid banco'));
 		}
-		$this->request->allowMethod('post', 'delete');
-		if ($this->Banco->delete()) {
+		$this->request->data['Banco']['borrado'] = 1;
+		if ($this->Banco->save($this->request->data)) {
 			$this->Flash->success(__('The banco has been deleted.'));
 		} else {
 			$this->Flash->error(__('The banco could not be deleted. Please, try again.'));

@@ -31,6 +31,11 @@ class ServiciosController extends AppController {
 		$servicio = $this->Servicio->find('all', array('order' => 'Servicio.nombreservicio ASC'), array('conditions' => array('Servicio.borrado' => 0)));
 		$this->set('servicios', $servicio, $this->paginate());
 
+		$this->pdfConfig = array(
+			'download' => true,
+			'filename' => 'Listado_de_servicios.pdf'
+			);
+
 	}
 
 	public function listado(){
@@ -161,7 +166,7 @@ class ServiciosController extends AppController {
 			}
 
 
-			$servicios = $this->Servicio->find('all', array('recursive' => -1, 'fields' => array('Servicio.id', 'Servicio.nombreservicio', 'Servicio.precio'), 'conditions' => array($conditions, 'Servicio.estadoservicio' => '1', 'Servicio.borrado' => '0'), 'limit' => 20));
+			$servicios = $this->Servicio->find('all', array('recursive' => -1, 'fields' => array('Servicio.id', 'Servicio.nombreservicio', 'Servicio.precio'), 'conditions' => array($conditions, 'Servicio.estadoservicio' => '1', 'Servicio.borrado' => '0', 'Servicio.precio !=' => 0), 'limit' => 20));
 		}
 
 		echo json_encode($servicios);
@@ -180,26 +185,29 @@ class ServiciosController extends AppController {
 			$terms = array_diff($terms, array(''));
 
 			foreach ($terms as $term) {
-				$terms1[] = preg_replace('/[^a-zA-ZñÑáéíóúÁÉÍÓÚ0-9 ]/', '', $term);
+				$terms1[] = preg_replace('/[^a-zA-ZñÑáéíóúÁÉÍÓÚ0-9() ]/', '', $term);
 				$conditions[]= array('Servicio.nombreservicio LIKE' => '%'. $term . '%');  
 			}
 
-			$servicios = $this->Servicio->find('all', array('recursive' => -1, 'fields' => array('Servicio.id', 'Servicio.nombreservicio', 'Servicio.precio'), 'conditions' => array($conditions, 'Servicio.estadoservicio' => '1', 'Servicio.borrado' => '0'), 'limit' => 1));
+			$servicios = $this->Servicio->find('all', array('recursive' => -1, 'fields' => array('Servicio.id', 'Servicio.nombreservicio', 'Servicio.precio'), 'conditions' => array($conditions, 'Servicio.estadoservicio' => '1', 'Servicio.borrado' => '0'), 'limit' => 20));
 
 			if (count($servicios) != 0) {
 				return $this->redirect(array('controller' => 'servicios', 'action' => 'edit', $servicios[0]['Servicio']['id']));
 			}else{
-				$this->Flash->error(__('Servicio no encontrado'));
+				//$this->Flash->error(__('Servicio no encontrado'));
+				//debug($conditions);
 			}
 			//$terms1 = array_diff($terms1, array(''));
 			//$this->set(compact('servicios', 'terms1'));
 			
 		}
 
-		debug($servicios);
+		//debug($servicios);
+
+		
+
 
 		$this->autoRender = false;
-
 	}
 
 	public function isAuthorized($usuario){
@@ -240,5 +248,118 @@ class ServiciosController extends AppController {
 	}
 
 
+	//Esta funcion le permite a un administrador modificar todos los precios de los servicios por porcentaje
+	public function modificar_precios() {
 
-}
+		if ($this->request->is('post')) {
+			//debug($this->request->data);
+
+			//Obtenemos lista de precios de los servicios
+			$this->loadModel('Servicio');
+			$Servicios = $this->Servicio->query("SELECT id, precio FROM servicios WHERE precio > 0");
+
+			//Obtenemos datos enviado por request post
+			$porcentaje = $this->request->data['cifra'];
+
+			$operacion = $this->request->data['opcion'];
+
+			//Averiguamos la operacion que se va a realizar
+			if ($operacion == 'aumentar') {
+				foreach ($Servicios as $servicio) {
+					//echo $servicio['servicios']['precio'] . "<br>";
+
+					//Calculamos el aumento
+					$precio = $servicio['servicios']['precio'];
+
+					$id = $servicio['servicios']['id'];
+
+					$resultado = $precio * $porcentaje;
+
+					$resultado = $resultado / 100;
+
+					$resultado = $precio + $resultado;
+
+					//MODIFICAMOS RESULTADO PARA UN MEJOR MANEJO DEL EFECTIVO
+					$x = $resultado / 1000;
+
+					$x = ceil($x);
+
+					$x = $x * 1000;
+
+					$y= $x - $resultado;
+
+					if ($y >= 500) {
+						$nuevo_precio = $x - 500;
+					}else{
+						$nuevo_precio = $x;
+					}
+					
+						//Guardar en Servicios
+						$datos = array('id' => $id, 'precio' => $nuevo_precio);
+
+						if ($this->Servicio->save($datos)) {
+							$resultado_final = true;
+						}else{
+							$resultado_final = false;
+						}
+
+					}//Fin foreach
+
+
+			} else {
+				foreach ($Servicios as $servicio) {
+					//echo $servicio['servicios']['precio'] . "<br>";
+
+					//Calculamos
+					$precio = $servicio['servicios']['precio'];
+
+					$id = $servicio['servicios']['id'];
+
+					$resultado = $precio * $porcentaje;
+
+					$resultado = $resultado / 100;
+
+					$resultado = $precio - $resultado;
+
+					//MODIFICAMOS RESULTADO PARA UN MEJOR MANEJO DEL EFECTIVO
+					$x = $resultado / 1000;
+
+					$x = ceil($x);
+
+					$x = $x * 1000;
+
+					$y= $x - $resultado;
+
+					if ($y >= 500) {
+						$nuevo_precio = $x - 500;
+					}else{
+						$nuevo_precio = $x;
+					}
+
+					//Guardar en Servicios
+					$datos = array('id' => $id, 'precio' => $nuevo_precio);
+
+					if ($this->Servicio->save($datos)) {
+						$resultado_final = true;
+					}else{
+						$resultado_final = false;
+					}
+
+
+				}//Fin foreach
+			}
+			
+		
+			if ($resultado_final == true) {
+				$this->Flash->success('Los precios fueron modificados con exito');
+				$this->redirect(array('action' => 'index'));
+			}else{
+				$this->Flash->error('Los precios no pudieron ser modificados');
+			}
+		}
+
+	}//Fin modificar precios
+
+
+
+}//	FIN CLASE

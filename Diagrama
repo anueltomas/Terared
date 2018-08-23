@@ -1,0 +1,93 @@
+Atender nuevo cliente:
+
+//Version con lista de cliente
+1. En lista de clientes presionar atender, ticket pasa a estar en atencion.
+2. Se toma el id del cliente, se crea un nuevo numero de ticket, cliente pasa del estadoturno 1 a 0 para que sea removido de la lista y se pasa a la ventana de detalles de ticket.
+3. Si necesitamos cancelar la edicion del detalle de ticket, se puede eliminar ese cliente, y dar el ticket a otro cliente de la lista, o devolver el cliente a la lista y dar el ticket a otro cliente.
+
+4. Al agregar todos los detalles del ticket se presiona procesar y este es agregado a lista de tickets por pagar
+
+
+//Version con sin lista de cliente
+1. En lista de tickets presionar atender, ticket pasa a estar en atencion..
+2. Se toma el id y el numero del ticket,  se pasa a la ventana de detalles de ticket.
+3. Si necesitamos cancelar la edicion del detalle de ticket, se puede poner ticket en espera nuevamente o eliminar editando estado del ticket de 1 a 0 y pasa a estar en cancelado.
+4. Al agregar todos los detalles del ticket se presiona procesar y este es agregado a lista de tickets por pagar y ticket pasa del estado 1 a 0 y pasa a estar en por pagar
+
+Estados de un ticket:
+
+Atencion: Ticket que esta siendo actualmente editado
+Espera: Ticket que estaba siendo editado y se encuentra es espera.
+Pagado: Ticket ya cancelado y no puede ser modificado
+Cancelado: Ticket que es cancelado por un transcriptor
+Por pagar: Ticket libre para ser pagado o ser editado
+Anulado: ocurre cuando un ticket esta en el estado por pagar y un administrador lo anula.
+Facturado: estado asignado cuando el ticket es ingresado a una factura del sistema D3XD
+
+
+TIPOS DE SERVICIOS:
+DOCUMENTOS: Son aquellos servicios que resultan de un material tangible como impresiones, copias, plastificaciones u cualquier.
+
+SERVICIOS: Son aquellos servicios que no arrojan como resultado material tangible y pueden ser: enviar correos, digitalizar un documento, etc.
+
+INTERNET: Servicio que es prestado solamente por quien tiene el privilegio de cybercontrol y es el que se efectua cuando es alquilado un equipo del ciber.
+
+TIPOS DE CONFIGURACIONES PARA FACTURAR:
+TICKETS: Se establece con un numero predeterminado de 20 y sirve para que cuando la cantidad de tickets facturados por un cajero supere el numero 20 le indique al mismo que deberá facturar los ticket que tiene en estado "Pagado".
+
+MONTO: Se establece para que cuando la sumatoria del total de los tickets facturados por un cajero supere el monto le indique al mismo que deberá facturar los ticket que tiene en estado "Pagado".
+
+
+********//////////ESTADOS DE UNA FACTURA/////////********
+
+CREADA
+ANULADA
+
+
+CONSULTAS
+
+SELECT TIME(turno_cajeros.created), TIME(turno_cajeros.modified) FROM turno_cajeros WHERE turno_cajeros.usuario_id = 2 
+
+EFECTIVO
+SELECT SUM(detalle_pagos.total) AS EFECTIVO FROM detalle_pagos, efectivos, tickets, usuarios, turno_cajeros WHERE efectivos.id = detalle_pagos.efectivo_id AND tickets.id = detalle_pagos.ticket_id AND usuarios.id = tickets.usuario_id AND turno_cajeros.usuario_id = usuarios.id AND usuarios.id = 2 
+
+POR CADA PUNTO
+SELECT bancopuntos.nombre, SUM(detalle_pagos.total) AS TOTAL
+FROM detalle_pagos,puntos, tickets, usuarios, turno_cajeros, bancopuntos 
+WHERE bancopuntos.id = puntos.bancopunto_id
+AND puntos.id = detalle_pagos.punto_id 
+AND tickets.id = detalle_pagos.ticket_id 
+AND usuarios.id = tickets.usuario_id 
+AND turno_cajeros.usuario_id = usuarios.id AND usuarios.id = 2 
+GROUP BY bancopuntos.nombre
+
+TOTAL EN PUNTOS
+SELECT  SUM(detalle_pagos.total) AS TOTAL
+FROM detalle_pagos,puntos, tickets, usuarios, turno_cajeros
+WHERE puntos.id = detalle_pagos.punto_id 
+AND tickets.id = detalle_pagos.ticket_id 
+AND usuarios.id = tickets.usuario_id 
+AND turno_cajeros.usuario_id = usuarios.id AND usuarios.id = 2
+
+POR TRANSFERENCIAS
+SELECT  SUM(detalle_pagos.total) AS TOTAL
+FROM detalle_pagos, transferencias, tickets, usuarios, turno_cajeros
+WHERE transferencias.id = detalle_pagos.transferencia_id 
+AND tickets.id = detalle_pagos.ticket_id 
+AND usuarios.id = tickets.usuario_id 
+AND turno_cajeros.usuario_id = usuarios.id AND usuarios.id = 2
+
+GASTOS
+SELECT  SUM(gastos.montogasto) AS GASTOS
+FROM gastos, usuarios, turno_cajeros
+WHERE usuarios.id = 2
+AND turno_cajeros.usuario_id = usuarios.id
+AND gastos.turno_cajero_id = turno_cajeros.id
+
+TOTAL INGRESOS
+SELECT  SUM(detalle_pagos.total) AS TOTAL
+FROM detalle_pagos, tickets, usuarios, turno_cajeros
+WHERE tickets.id = detalle_pagos.ticket_id 
+AND usuarios.id = tickets.usuario_id 
+AND turno_cajeros.usuario_id = usuarios.id 
+AND usuarios.id = 2

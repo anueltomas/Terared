@@ -33,7 +33,7 @@ App::uses('Controller', 'Controller');
 class AppController extends Controller {
 
 	public $helpers = array('Html', 'Form', 'Time', 'Js');
-	public $components = array('Flash', 'Session', 'Auth' );
+	public $components = array('Flash', 'Session', 'Auth', 'RequestHandler');
 
 	public function beforeFilter(){
 		$this->Auth->allow('login, logout');
@@ -63,7 +63,9 @@ class AppController extends Controller {
 
 	public function isAuthorized($usuario){
 
-		if (isset($usuario['privilegio_id']) && $usuario['privilegio_id'] === '1' || $usuario['privilegio_id'] ==='2') {
+		$privilegio = $this->Session->read('privilegio_id');
+
+		if (isset($privilegio) && $privilegio === '1' || $privilegio ==='2') {
 			return true;
 		}else{
 				if ($this->Auth->user('id')) {

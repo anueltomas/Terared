@@ -59,8 +59,8 @@
 
 					<td class="actions">
 						
-						<?php echo $this->Html->link(__('Editar'), array('action' => 'edit', $trabajador['Trabajador']['id']), array('class' => 'btn btn-sm btn-default')); ?>
-						<?php echo $this->Form->postLink(__('Eliminar'), array('action' => 'delete', $trabajador['Trabajador']['id']), array('class' => 'btn btn-sm btn-default', 'confirm' => __('Está seguro que desea eliminar a # %s?', $trabajador['Trabajador']['nombre']))); ?>
+						<?php echo $this->Html->link(__('Editar'), array('action' => 'edit', $trabajador['Trabajador']['id']), array('class' => 'btn btn-sm btn-primary')); ?>
+						<?php echo $this->Form->postLink(__('Eliminar'), array('action' => 'delete', $trabajador['Trabajador']['id']), array('class' => 'btn btn-sm btn-danger', 'confirm' => __('Está seguro que desea eliminar a # %s?', $trabajador['Trabajador']['nombre']))); ?>
 					</td>
 				</tr>
 					<?php endforeach; ?>
@@ -68,15 +68,15 @@
 			</table>
 			<p>
 				<?php
-					echo $this->Paginator->counter(array(
-						'format' => __('Page {:page} of {:pages}, showing {:current} records out of {:count} total, starting on record {:start}, ending on {:end}')));
+					//echo $this->Paginator->counter(array(
+						//'format' => __('Page {:page} of {:pages}, showing {:current} records out of {:count} total, starting on record {:start}, ending on {:end}')));
 					?>
 			</p>
 			<div class="paging">
 				<?php
-					echo $this->Paginator->prev('< ' . __('previous'), array(), null, array('class' => 'prev disabled'));
-					echo $this->Paginator->numbers(array('separator' => ''));
-					echo $this->Paginator->next(__('next') . ' >', array(), null, array('class' => 'next disabled'));
+					//echo $this->Paginator->prev('< ' . __('previous'), array(), null, array('class' => 'prev disabled'));
+					//echo $this->Paginator->numbers(array('separator' => ''));
+					//echo $this->Paginator->next(__('next') . ' >', array(), null, array('class' => 'next disabled'));
 				?>
 			</div>
 		</div>

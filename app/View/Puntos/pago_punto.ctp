@@ -30,7 +30,7 @@
 
                 <div class="row-fluid">
                   <div class="col-md-6">
-                  <?php echo $this->Form->input('codigoaprobado', array('class' => 'form-control', 'label' => 'Código de aprobación', 'placeholder' => 'Código de aprobación')); ?>
+                  <?php echo $this->Form->input('codigoaprobado', array('class' => 'form-control', 'label' => 'Código de aprobación', 'placeholder' => 'Código de aprobación', 'required' => true)); ?>
                   </div>
                 </div>
 
@@ -51,7 +51,7 @@
     <div class="form-group">
       
 
-      <?php echo $this->Form->submit('Pagar', array('type' => 'submit', 'class' => 'btn btn-success pull-left', 'escape' => false, 'class' =>'btn btn-success pull-left', )); ?>
+      <?php echo $this->Form->submit('Pagar', array('type' => 'submit', 'class' => 'btn btn-success pull-left', 'escape' => false)); ?>
 
       <?php echo $this->Html->link("<i class='fa fa-arrow-left'></i> Volver", array('controller' => 'tickets', 'action' => 'ver', $idTicket), array('type' => 'submit', 'class' => 'btn btn-danger pull-right', 'escape' => false)); 
       ?>

@@ -5,9 +5,9 @@ App::uses('AppModel', 'Model');
  * Usuario Model
  *
  * @property Trabajador $Trabajador
- * @property Privilegio $Privilegio
  * @property DetalleTicket $DetalleTicket
- * @property Ticket $Ticket
+ * @property TurnoCajero $TurnoCajero
+ * @property Privilegio $Privilegio
  */
 class Usuario extends AppModel {
 
@@ -84,16 +84,6 @@ class Usuario extends AppModel {
 				//'on' => 'create', // Limit validation to 'create' or 'update' operations
 			),
 		),
-		'privilegio_id' => array(
-			'numeric' => array(
-				'rule' => array('numeric'),
-				//'message' => 'Your custom message here',
-				//'allowEmpty' => false,
-				//'required' => false,
-				//'last' => false, // Stop validation after this rule
-				//'on' => 'create', // Limit validation to 'create' or 'update' operations
-			),
-		),
 	);
 
 	// The Associations below have been created with all possible keys, those that are not needed can be removed
@@ -107,13 +97,6 @@ class Usuario extends AppModel {
 		'Trabajador' => array(
 			'className' => 'Trabajador',
 			'foreignKey' => 'trabajador_id',
-			'conditions' => '',
-			'fields' => '',
-			'order' => ''
-		),
-		'Privilegio' => array(
-			'className' => 'Privilegio',
-			'foreignKey' => 'privilegio_id',
 			'conditions' => '',
 			'fields' => '',
 			'order' => ''
@@ -139,8 +122,8 @@ class Usuario extends AppModel {
 			'finderQuery' => '',
 			'counterQuery' => ''
 		),
-		'Ticket' => array(
-			'className' => 'Ticket',
+		'TurnoCajero' => array(
+			'className' => 'TurnoCajero',
 			'foreignKey' => 'usuario_id',
 			'dependent' => false,
 			'conditions' => '',
@@ -153,6 +136,30 @@ class Usuario extends AppModel {
 			'counterQuery' => ''
 		)
 	);
+
+
+/**
+ * hasAndBelongsToMany associations
+ *
+ * @var array
+ */
+	public $hasAndBelongsToMany = array(
+		'Privilegio' => array(
+			'className' => 'Privilegio',
+			'joinTable' => 'privilegios_usuarios',
+			'foreignKey' => 'usuario_id',
+			'associationForeignKey' => 'privilegio_id',
+			'unique' => 'keepExisting',
+			'conditions' => '',
+			'fields' => '',
+			'order' => '',
+			'limit' => '',
+			'offset' => '',
+			'finderQuery' => '',
+		)
+	);
+
+
 
 	public function beforeSave($options = array()){
 

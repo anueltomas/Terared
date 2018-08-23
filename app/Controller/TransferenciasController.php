@@ -19,8 +19,9 @@ class TransferenciasController extends AppController {
 	public function isAuthorized($usuario)
 	{
 
+		$privilegio = $this->Session->read('privilegio_id');
 	
-		if ($usuario['privilegio_id'] == '4') {
+		if ($privilegio == '4') {
 
 			
 				if (in_array($this->action, array('pago_transferencia'))) {

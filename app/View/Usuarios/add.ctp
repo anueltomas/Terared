@@ -1,4 +1,6 @@
 <?php //debug($trabajadors); ?>
+<?php //debug($prueba); ?>
+<?php //debug($privilegios); ?>
 <?php echo $this->Html->script(array('myjs/ver_password', 'myjs/comprobar_contraseña')); ?>
 
 <div class="box box-primary box-solid">
@@ -31,26 +33,22 @@
           </div>
         </div>
         <div class="col-md-4">
-          <label>Privilegio</label>
+          <label>Privilegios para el usuario</label>
           <div class="input-group">
-            <?php echo $this->Form->input('privilegio_id', array('label' => false, 'class' => 'form-control')); ?>
-            <span class="input-group-btn">
-              <?php echo $this->Html->link('Nuevo', array('controller' => 'privilegios', 'action' => 'nuevo'), array('class' => 'btn btn-primary')); ?>
-            </span>
+            <?php echo $this->Form->input('Privilegio', array('label' => false)); ?>
             
+            <br>
           </div>
         </div>
+
+        <br>
+
+
         
       </div>
 
        <br>
-      <br>
-      <br>
-      <br>
-      <br>
-      <br>
-
-       
+   
 
       <div class="row-fluid">
 

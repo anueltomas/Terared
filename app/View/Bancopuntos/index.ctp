@@ -49,7 +49,7 @@
 						
 						
 						<td class="actions">
-							<?php echo $this->Html->link(__('Editar'), array('action' => 'edit', $bancopunto['Bancopunto']['id']), array('class' => 'btn btn-sm btn-default')); ?>
+							<?php echo $this->Html->link(__('Editar'), array('action' => 'edit', $bancopunto['Bancopunto']['id']), array('class' => 'btn btn-sm btn-primary')); ?>
 							<?php echo $this->Form->postLink(__('Delete'), array('action' => 'delete', $bancopunto['Bancopunto']['id']), array('class' => 'btn btn-sm btn-danger', 'confirm' => __('Are you sure you want to delete # %s?', $bancopunto['Bancopunto']['id']))); ?>
 						</td>
 

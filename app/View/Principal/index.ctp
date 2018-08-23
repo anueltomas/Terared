@@ -9,6 +9,7 @@
         <div class="carousel-inner" role="listbox">
           <div class="item active">
             <?php echo $this->Html->image('tecnologia.jpeg'); ?>  alt="First slide" >
+            <?php //echo $this->Html->image('logotera.jpg', array('width' => 200, 'height' => 180)); ?>
           </div>
           <div class="item">
             <?php echo $this->Html->image('bosque.png'); ?> alt="Second slide">

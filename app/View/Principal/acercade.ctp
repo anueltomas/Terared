@@ -20,10 +20,10 @@
 	
 	<center><h3>Desarrollado para:</h3></center>
 	<center><h2>Inversiones Terared</h2></center>
-	<center><h4>Por: <strong>Sebastian Silva</strong></h4></center>
-	<center><h4>y</h4></center>
-	<center><h4><strong>Tomás Anuel</strong></h4></center>
-	<center>Año: <strong>2017</strong></center>
+	<!--<center><h4>Por: <strong>Sebastian Silva</strong></h4></center>
+	<center><h4>y</h4></center>-->
+	<center><h4>Por: <strong>Tomás Anuel</strong></h4></center>
+	<center>Año: <strong>2017 - 2018</strong></center>
   <br>
   <br>
   <br>

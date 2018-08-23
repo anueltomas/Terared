@@ -34,14 +34,31 @@ class ClientesController extends AppController {
 		$this->Cliente->recursive = 0;
 		$this->paginate['Cliente']['limit'] = 50;
 		$this->paginate['Cliente']['order'] = array('Cliente.id' => 'ASC');
-		$this->paginate['Cliente']['conditions'] = array('Cliente.estadocliente' => 1, 'Cliente.borrado' => 0);
+		$this->paginate['Cliente']['conditions'] = array('Cliente.estadocliente' => 1, 'Cliente.borrado' => 0, 'Cliente.cola_id' => 1);
 		//$this->paginate['Cliente']['conditions'] => array('Cliente.status' => 1);
 		$this->set('clientes', $this->paginate());
+		
 	}
+
+
+	public function tabla_cybercontrol(){
+		$this->layout = 'ajax';
+		$this->Cliente->recursive = 0;
+		$this->paginate['Cliente']['limit'] = 50;
+		$this->paginate['Cliente']['order'] = array('Cliente.id' => 'ASC');
+		$this->paginate['Cliente']['conditions'] = array('Cliente.estadocliente' => 1, 'Cliente.borrado' => 0, 'Cliente.cola_id' => 2);
+		//$this->paginate['Cliente']['conditions'] => array('Cliente.status' => 1);
+		$this->set('clientes', $this->paginate());
+		
+	}
+
+
 
 	public function index() {
 
 		if ($this->request->is('post')) {
+			//$nombre =  strtoupper($this->request->data['nombrecliente']);
+			//$this->request->data['nombre'] = $nombre;
 			$this->Cliente->create();
 			if ($this->Cliente->save($this->request->data)) {
 				$this->Flash->success('Cliente Agregado Exitosamente');
@@ -54,12 +71,50 @@ class ClientesController extends AppController {
 
 
 			$this->Cliente->recursive = 0;
-			$this->paginate['Cliente']['limit'] = 30;
+			$this->paginate['Cliente']['limit'] = 50;
 			$this->paginate['Cliente']['order'] = array('Cliente.id' => 'ASC');
 			$this->paginate['Cliente']['conditions'] = array('Cliente.estadocliente' => 1, 'Cliente.borrado' => 0);
 			//$this->paginate['Cliente']['conditions'] => array('Cliente.status' => 1);
 			$this->set('clientes', $this->paginate());
 
+			$this->loadModel('Ticket');
+			$conditions = array('Ticket.estadoticket' => array('Pagado', 'Facturado'));
+			$ticket = $this->Ticket->find('all', array('conditions' => $conditions, 'order' => array('Ticket.modified' => 'DESC'), 'limit' => 20));
+			$this->set('pagados', $ticket);
+
+			$this->loadModel('Cola');
+			$colas = $this->Cola->find('list', array('fields' => array('id', 'nombre')));
+			$this->set('colas', $colas);
+
+	}
+
+	public function clienteExpress($nombreCliente = null) {
+
+		if ($nombreCliente == null) {
+			throw new NotFoundException("Error en el id del cliente", 1);
+			
+		}
+
+			$datos = array('nombre' => $nombreCliente, 'cola_id' => 1);
+
+		
+			$this->Cliente->create();
+			if ($this->Cliente->save($datos)) {
+				$this->Flash->success('Cliente Agregado Exitosamente');
+
+				//Buscamos ultimo cliente ingresado
+				$datos = $this->Cliente->find('first', array('fields' => array('Cliente.id'), 'order' => array('Cliente.id' => 'desc')));
+
+				$idCliente = $datos['Cliente']['id'];
+
+				return $this->redirect(array('controller' => 'tickets', 'action' => 'nuevo', $idCliente));
+
+			} else {
+				return false;
+			}
+
+			$this->autoRender=false;
+		
 	}
 
 /**
@@ -96,6 +151,26 @@ class ClientesController extends AppController {
 				return $this->redirect(array('action' => 'index'));
 			} else {
 				$this->Flash->error(__('El cliente no puede ser modificado'));
+				debug($this->request->data);
+			}
+		} else {
+			$options = array('conditions' => array('Cliente.' . $this->Cliente->primaryKey => $id));
+			$this->request->data = $this->Cliente->find('first', $options);
+		}
+	}
+
+	public function editar($id = null) {
+		if (!$this->Cliente->exists($id)) {
+			throw new NotFoundException(__('Id de cliente no válido'));
+		}
+		if ($this->request->is(array('post', 'put'))) {
+			$datos = array('id' => $id, 'nombre' => $this->request->data['Cliente']['nombre'], 'estadocliente' => 0);
+			if ($this->Cliente->save($datos)) {
+				$this->Flash->success(__('El cliente ha sido modificado.'));
+				return $this->redirect(array('controller' => 'tickets', 'action' => 'ticketactual'));
+			} else {
+				$this->Flash->error(__('El cliente no puede ser modificado'));
+				debug($this->request->data);
 			}
 		} else {
 			$options = array('conditions' => array('Cliente.' . $this->Cliente->primaryKey => $id));

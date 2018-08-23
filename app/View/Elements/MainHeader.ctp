@@ -21,8 +21,15 @@
             <!-- Menu Toggle Button -->
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
               <!-- The user image in the navbar-->
+              <?php //debug($current_user); ?>
 
-              <?php if ($current_user['Privilegio']['id'] == 1){ ?>
+              <?php $privilegio = $this->Session->read('privilegio_id'); ?>
+
+              <?php $nombreprivilegio = $this->Session->read('privilegio_nombre'); ?>
+
+              <?php //debug($nombreprivilegio); ?>
+
+              <?php if ($privilegio == 1){ ?>
 
               <?php //echo $this->Html->image('Tomas_Anuel.jpg', array('class' => 'img-circle', 'alt' => 'User Image')); ?>
 
@@ -33,13 +40,13 @@
               <?php } ?>
 
               <!-- hidden-xs hides the username on small devices so only the image appears. -->
-              <span class="hidden-xs"><?php echo $current_user['Privilegio']['nombreprivilegio']; ?></span>
+              <span class="hidden-xs"><?php echo $nombreprivilegio; ?></span>
             </a>
             <ul class="dropdown-menu">
               <!-- The user image in the menu -->
               <li class="user-header">
 
-              <?php if ($current_user['Privilegio']['id'] == 1){ ?>
+              <?php if ($privilegio == 1){ ?>
 
                 <?php echo $this->Html->image('Tomas_Anuel.jpg', array('class' => 'img-circle', 'alt' => 'User Image')); ?>
 

@@ -1,18 +1,16 @@
 <?php //debug($usuarios); ?>
+<?php //debug($privilegios); ?>
 <?php echo $this->Html->script('myjs/ver_password.js'); ?>
 
 <div class="box-body">
 
 
-  
-      
-
             <?php echo $this->Form->create('Usuario', array('class' => 'form-signin')); ?>
             <center>
-  <?php echo $this->Html->image('logotera.jpg', array('width' => 200, 'height' => 180)); ?>
-</center>
+            <?php echo $this->Html->image('logotera.jpg', array('width' => 200, 'height' => 180)); ?>
+          </center>
 
-            <h2 class="form-signin-heading">Ingreso al Sistema</h2>
+            <center><h2 class="form-signin-heading">Ingreso al Sistema</h2></center>
             <br>
 
             <?php echo $this->Form->input('id', array('type' => 'hidden')); ?>
@@ -22,15 +20,20 @@
                   'placeholder' => 'Usuario', 'required' => 'autofocus'
               )); 
             ?>
-
             <br>
 
+            
             <?php echo $this->Form->input('password', array('id' => 'contraseña',
                   'class'=> 'form-control','label' => false,
                   'placeholder' => 'Contraseña'
               )); 
             ?> <i class="fa fa-eye" id="show">Descubrir contraseña</i>     
             <br>
+            
+            <br>
+            
+                  <?php echo $this->Form->input('privilegio_id', array('options' => array($privilegios), 'empty' => 'Seleccione un privilegio de acceso', 'id' => 'servicio', 'class' => 'form-control select2 select2-hidden-accessible',  'label' => false)) ?>
+
             <br>
 
             <?php echo $this->Form->button('Ingresar',array(

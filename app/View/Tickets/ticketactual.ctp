@@ -1,4 +1,5 @@
 <?php //debug($datos); ?>
+<?php //debug($prueba); ?>
 <?php //debug($detalles); ?>
 <?php //debug($current_user); ?>
 <?php echo $this->Html->script('myjs/tickets.js'); ?>
@@ -34,22 +35,138 @@
               <?php echo $this->Form->button("<i class='fa fa-search'></i>", array('div' => false, 'class' => 'btn btn-flat')); ?>
               </span>
         </div>
+
+
           <?php echo $this->Form->end(); ?>
    
   <!-- /.search form -->
+
+
+
+
+  <!-- MODAL TICKETS PAGADOS -->
+<div class="form-group">
+
+      <!-- INICIO VENTANA MODAL -->
+      <div class="modal fade" id="modal-pagados">
+       <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Tickets pagados</h4>
+          </div>
+        <div class="col-md-12">    
+
+          <table class="table">
+        <thead>
+          <tr>
+            <th>N° Ticket</th>
+            <th>Nombre del Cliente</th>
+            <th>Monto a pagar</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php foreach ($pagados as $ticket): ?>
+            
+          <tr>
+        <td><?php echo h($ticket['Ticket']['numeroticket']); ?>&nbsp;</td>
+
+        <td><?php echo h($ticket['Cliente']['nombre']); ?>&nbsp;</td>
+
+        <td><?php echo number_format($ticket['Ticket']['montoticket'], 2,",","."); ?> Bs.</td>
+
+        <td><?php echo h($ticket['Ticket']['estadoticket']); ?>&nbsp;</td>
+      
+        
+            
+      
+
+
+      </tr>
+
+          <?php endforeach; ?>
+        </tbody>
+      </table>
+            
+           
+        
+     
+                                              
+                    
+        </div>
+        <div class="modal-footer">
+          <button id="cerrarModal" type="button" class="btn btn-default pull-left" data-dismiss="modal">Cerrar</button>
+         
+        </div>
+
+        <?php
+
+
+        ?>
+
+                      
+        <?php //echo $this->Form->end(); ?>
+
+      </div>
+      <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+  </div>
+  <!-- /.modal -->
+
+  </div>
+
+  <!-- FIN VENTANA MODAL -->
 
 	
 
       <div class="box-footer">
       <div class="form-group">
-        <?php //echo $this->Html->link("<i class='fa fa-plus'></i> Servicio", array('controller' => 'detalleTickets', 'action' => 'add', $datos['Ticket']['id']),array('class' => 'btn btn-primary pull-left', 'escape' => false)); 
-      ?>  
+    
 
-       <?php echo $this->Html->link("<i class='fa fa-plus'></i> Nuevo Servicio", array('controller' => 'tickets', 'action' => 'add'),array('class' => 'btn btn-primary pull-left', 'escape' => false, 'data-toggle' => 'modal', 'data-target' => '#modal-default')); 
+       <?php echo $this->Html->link("<i class='fa fa-plus'></i> Asignar Servicio", array('controller' => 'tickets', 'action' => 'add'),array('class' => 'btn btn-primary pull-left', 'escape' => false, 'data-toggle' => 'modal', 'data-target' => '#modal-default')); 
         ?> 
 
         <?php echo $this->Html->link("<i class='fa fa-plus'></i> Cliente", array('controller' => 'clientes', 'action' => 'add'),array('class' => 'btn btn-default pull-left', 'escape' => false, 'data-toggle' => 'modal', 'data-target' => '#modal-clientes')); 
         ?>
+
+        <?php $privilegio = $this->Session->read('privilegio_id'); ?>
+
+        <?php if($privilegio == 5 || $privilegio == 1 || $privilegio == 2  ) { ?>
+
+          <?php echo $this->Form->create('DetalleTicket'); ?>
+
+          <div class="row-fluid">
+
+            <div class="col-md-4">
+              <div class="input-group">
+              <?php echo $this->Form->create('DetalleTicket'); ?>
+                <?php echo $this->Form->input('totalalquiler', array('label' => false, 'class' => 'form-control', 'placeholder' => 'Monto alquiler de equipos')); ?>
+                <span class="input-group-btn">
+                  <?php echo $this->Form->button("<i class='fa fa-save'></i> Guardar", array(
+        'type' => 'submit', 'class' => 'btn btn-success pull-left', 'escape' => false)); 
+      ?>
+                </span>
+
+                <?php
+
+                  echo $this->Form->hidden('ticket_id', array('id' => 'ticket', 'default' => $datos['Ticket']['id'])); 
+
+                  echo $this->Form->hidden('usuario_id', array('id' => 'usuario', 'default' => $current_user['id'])); 
+
+                ?>
+
+                <?php echo $this->Form->end(); ?>
+                
+              </div>
+            </div>
+                
+          <?php } ?>
+
+          <?php echo $this->Html->link("<i class='fa fa-money'></i> Tickets Pagados", array('controller' => 'tickets', 'action' => 'add'),array('class' => 'btn btn-danger pull-left', 'escape' => false, 'data-toggle' => 'modal', 'data-target' => '#modal-pagados')); 
+           ?>   
 
 
         <?php echo $this->Form->postLink("<i class='fa fa-remove'></i> Eliminar Ticket", array('action' => 'delete', $datos['Ticket']['id']),array('type' => 'submit', 'class' => 'btn btn-danger pull-right', 'escape' => false, 'confirm' => __('Realmente desea eliminar éste ticket: %s?', $datos['Ticket']['id']))); 
@@ -75,14 +192,9 @@
             <span aria-hidden="true">&times;</span></button>
             <h4 class="modal-title">Añadir Servicios</h4>
           </div>
-        <div class="col-md-12">     
-                        
-                        
-          <!-- /.box-header -->         
-          <!-- form start -->   
-          <?php //echo $this->Form->create('DetalleTicket', array('url' => array('controller' => 'detalleTickets', 'action' => 'add'))); ?>      
-                              
-          
+        <div class="col-md-12">    
+
+
             <div class="form-group">                     
               <label>Servicios:</label>
               <?php echo $this->Form->input('servicio_id', array('options' => array($listaservicios), 'empty' => 'Seleccione un servicio', 'id' => 'servicio', 'class' => 'servicio', 'form-control select2 select2-hidden-accessible',  'label' => false)) ?>
@@ -101,7 +213,7 @@
             </div>
 
             <div class="form-group">
-              <label>Monto:</label>
+              <label>Total:</label>
               <?php //echo $this->Form->input('Monto', array('class' => 'Monto form-control my-colorpicker1 colorpicker-element', 'id' => 'Monto', 'label' => false, 'type' => 'text', 'value' => '', 'disabled' => true)); ?>
               <input id="Monto" type="text" name="monto" disabled="true" class="Monto form-control my-colorpicker1 colorpicker-element">
             </div>
@@ -147,8 +259,9 @@
 
 	<div class="box-body">
 	
-
-		<h4>Cliente: <span><?php echo $datos['Cliente']['nombre']; ?></span></h4>
+<br><br>
+		<h4>Cliente: <span><?php echo $datos['Cliente']['nombre']; ?>
+    <?php echo $this->Html->link(__('Editar'), array('controller' => 'clientes', 'action' => 'editar', $datos['Cliente']['id']), array('class' => 'btn btn-sm btn-default')); ?></span></h4>
   		<h4>N° Ticket: <span><?php echo $datos['Ticket']['numeroticket']; ?></span></h4>
 
   	
@@ -174,7 +287,15 @@
                               <label>Nombre y Apellido</label>
                               <input id="nombrecliente" type="text" class="form-control" placeholder="Nombre y Apellido">
                             </div>
+                          
+
+                          <div class="form-group">                     
+                            <label>Servicio a solicitar:</label>
+                            <?php echo $this->Form->input('cola_id', array('options' => array($colas), 'empty' => 'Seleccione--', 'id' => 'cola', 'class' => 'cola', 'form-control select2 select2-hidden-accessible',  'label' => false)) ?>
                           </div>
+
+                          </div>
+
                           <div class="modal-footer">
                             <button id="cerrarModal" type="button" class="btn btn-default pull-left" data-dismiss="modal">Cerrar</button>
                             <button type="button" class="btn btn-primary" id="guardar_cliente">Guardar</button>
@@ -187,13 +308,10 @@
                     <!-- /.modal -->
 
             <!-- FIN VENTANA MODAL -->
+            
+</div>
 
-              
-                        
-                
-          </div>
-
-
+<?php //debug($detalles); ?>
 
 <div id="detalleTicket5"></div>
 <?php //debug($detalles); ?>
@@ -240,8 +358,11 @@
 
      <td><?php echo $detalle['Servicio']['nombreservicio']; ?></td>
 
-    
+  <?php if ($detalle['Servicio']['tservicio_id'] == 2) { ?>
+      <td>Por cyber control</td>
+  <?php } else { ?>
     <td><?php echo $this->Form->input($detalle['DetalleTicket']['id'], array('div' => false, 'class' => 'edit_cant form-control input-mdall', 'label' => false, 'size' => 2, 'maxlenght' => 3, 'tabindex' => $tabindex++, 'data-id' => $detalle['DetalleTicket']['id'], 'data-servicio' => $detalle['Servicio']['id'], 'value' => $detalle['DetalleTicket']['cantidad'])); ?></td>
+  <?php } ?>
 
 
     <td><?php echo number_format($detalle['Servicio']['precio'], 2,",","."); ?> Bs.</td>
@@ -262,6 +383,8 @@
         
        <?php echo $this->Html->link('<span class="glyphicon glyphicon-trash" aria-hidden="true"></span>', '#', array('escapeTitle' => false, 'title' => 'Eliminar servicio', 'id' => $detalle['DetalleTicket']['id'], 'class' => 'remove')); ?>
 
+       
+
         <?php //echo $this->Form->postLink(__('Eliminar'), array('controller' => 'detalleTickets', 'action' => 'delete', $detalle['DetalleTicket']['id'], $current_user['id']), array('class' => 'btn btn-sm btn-danger', 'confirm' => __('Realmente desea eliminar este servicio?', $detalle['DetalleTicket']['id']) )); ?></td>
 
 
@@ -281,12 +404,14 @@
 </table>
 
 
-<h3>
+<div class="pull-right">
+  <h3>
   <span class="total">Total Ticket:</span>
 <span id="total" class="total">
     <?php echo number_format($totalticket, 2,",","."); ?> Bs.
 </span>
 </h3>
+</div>
 
 </div>
 
@@ -302,8 +427,14 @@
 
   <div class="box-footer">
     <div class="form-group">
+    <?php if ($detalles == null) {
+      # code...
+    } else { ?>
       <?php echo $this->Html->link("<i class='fa fa-save'></i> Procesar ticket", array('action' => 'guardar_ticket', $datos['Ticket']['id']), array('type' => 'submit', 'class' => 'btn btn-success pull-left', 'escape' => false)); 
       ?>
+
+    <?php } ?>
+    
       <?php echo $this->Html->link("<i class='fa fa-arrow-left'></i> Volver", array(
         'action' => 'index',),array('type' => 'submit', 'class' => 'btn btn-danger pull-right', 'escape' => false)); 
       ?>
@@ -311,6 +442,8 @@
   </div>
 	
 	
+</div>
+
 </div>
 
 

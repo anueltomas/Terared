@@ -35,23 +35,23 @@ class Privilegio extends AppModel {
 	// The Associations below have been created with all possible keys, those that are not needed can be removed
 
 /**
- * hasMany associations
+ * hasAndBelongsToMany associations
  *
  * @var array
  */
-	public $hasMany = array(
+	public $hasAndBelongsToMany = array(
 		'Usuario' => array(
 			'className' => 'Usuario',
+			'joinTable' => 'privilegios_usuarios',
 			'foreignKey' => 'privilegio_id',
-			'dependent' => false,
+			'associationForeignKey' => 'usuario_id',
+			'unique' => 'keepExisting',
 			'conditions' => '',
 			'fields' => '',
 			'order' => '',
 			'limit' => '',
 			'offset' => '',
-			'exclusive' => '',
 			'finderQuery' => '',
-			'counterQuery' => ''
 		)
 	);
 
