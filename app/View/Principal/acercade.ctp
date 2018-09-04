@@ -24,6 +24,8 @@
 	<center><h4>y</h4></center>-->
 	<center><h4>Por: <strong>Tomás Anuel</strong></h4></center>
 	<center>Año: <strong>2017 - 2018</strong></center>
+
+  <center><h3>Email: <strong>anueltomas@gmail.com</strong></h3></center>
   <br>
   <br>
   <br>

@@ -638,7 +638,7 @@ class TicketsController extends AppController {
 
 	
 		$ticket_en_espera = $this->Ticket->find('first', array('conditions' => array('Ticket.borrado' => 0, 'Ticket.estadoticket' => 'Espera', 'Ticket.usuario_id' => $this->Auth->user('id'))));
-debug($ticket_en_espera);
+//debug($ticket_en_espera);
 
 		if ($ticket_en_espera == null) {
 			
@@ -1331,7 +1331,7 @@ debug($ticket_en_espera);
 		}
 
 		$this->loadModel('DetalleTicket');
-		$total_servicios = $this->DetalleTicket->find('all', array('conditions' => array('DetalleTicket.ticket_id' => $idTicket), 'fields' => array('SUM(DetalleTicket.monto) as subtotal')));
+		$total_servicios = $this->DetalleTicket->find('all', array('conditions' => array('DetalleTicket.ticket_id' => $idTicket, 'DetalleTicket.borrado' => 0), 'fields' => array('SUM(DetalleTicket.monto) as subtotal')));
 		
 		$total_servicios = $total_servicios['0']['0']['subtotal'];
 

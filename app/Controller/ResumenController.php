@@ -204,6 +204,12 @@ public function isAuthorized($usuario)
 	}
 
 
+	public function tickets_cobrados(){
+
+		
+	}
+
+
 
 
 	public function ver($idTurno = null, $idcierre = null) {

@@ -105,7 +105,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
       <footer>
         <div>
-        <?php //echo $this->element('sql_dump'); ?>
+        <?php echo $this->element('sql_dump'); ?>
       </div>
       </footer>
 

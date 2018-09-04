@@ -110,16 +110,21 @@ CakeLog::config('error', array(
 	'file' => 'error',
 ));
 
-/*CakePlugin::load('CakePdf', array(
-	'bootstrap' => true,
-	'routes' => true
-	));
-
-Configure::write('CakePdf', array(
-	'engine' => 'CakePdf.DomPdf',
-	'pageSize' => 'A4',
-	'orientation' => 'portrait'
-	));
-
+/**
+ * Configuration CakePdf
+ */
 define('DOMPDF_ENABLE_REMOTE', true);
-*/
+CakePlugin::load('CakePdf', array('bootstrap' => true, 'routes' => true));
+Configure::write('CakePdf', array(
+    'engine' => 'CakePdf.DomPdf',
+    'pageSize' => 'A4',
+    'orientation' => 'portrait',
+    'margin' => array(
+            'bottom' => 15,
+            'left' => 50,
+            'right' => 30,
+            'top' => 45
+        ),
+));
+
+

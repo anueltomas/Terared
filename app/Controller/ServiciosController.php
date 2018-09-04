@@ -8,6 +8,8 @@ App::uses('AppController', 'Controller');
  */
 class ServiciosController extends AppController {
 
+	public $components = array('RequestHandler');
+
 /**
  * Components
  *
@@ -28,19 +30,14 @@ class ServiciosController extends AppController {
  */
 	public function index() {
 		$this->Servicio->recursive = 0;
-		$servicio = $this->Servicio->find('all', array('order' => 'Servicio.nombreservicio ASC'), array('conditions' => array('Servicio.borrado' => 0)));
+		$servicio = $this->Servicio->find('all', array('order' => 'Servicio.id ASC'), array('conditions' => array('Servicio.borrado' => 0)));
 		$this->set('servicios', $servicio, $this->paginate());
-
-		$this->pdfConfig = array(
-			'download' => true,
-			'filename' => 'Listado_de_servicios.pdf'
-			);
-
+		
 	}
 
 	public function listado(){
 		$this->Servicio->recursive = 0;
-		$servicio = $this->Servicio->find('all', array('order' => 'Servicio.nombreservicio ASC'), array('conditions' => array('Servicio.borrado' => 0, 'Servicio.estadoservicio' => 1)));
+		$servicio = $this->Servicio->find('all', array('order' => 'Servicio.id ASC'), array('conditions' => array('Servicio.borrado' => 0, 'Servicio.estadoservicio' => 1)));
 		$this->set('servicios', $servicio, $this->paginate());
 
 		
@@ -247,6 +244,41 @@ class ServiciosController extends AppController {
 
 	}
 
+	//Funcion que nos permite guardar el precio anterior de varios prductos
+	public function guardar_precios_anteriores($lista_servicios) {
+		$this->loadModel('PreciosServicio');
+		//debug($lista_servicios);
+
+		foreach ($lista_servicios as $servicios) {
+
+			$nombre = $servicios['Servicio']['nombreservicio'];
+
+			$precio = $servicios['Servicio']['precio'];
+
+			$id = $servicios['Servicio']['id'];
+
+			$datos = array('nombre' => $nombre, 'servicio_id' => $id, 'precio' => $precio);
+
+			$this->PreciosServicio->create();
+
+			if($this->PreciosServicio->save($datos)) {
+				$respuesta = 0;
+			}else {
+				$respuesta = false;
+			}
+		}
+
+		if (empty($respuesta)) {
+			$respuesta = true;
+		}else{ 
+			$respuesta = false;
+		}
+
+		return $respuesta;
+				
+
+	}
+
 
 	//Esta funcion le permite a un administrador modificar todos los precios de los servicios por porcentaje
 	public function modificar_precios() {
@@ -256,7 +288,9 @@ class ServiciosController extends AppController {
 
 			//Obtenemos lista de precios de los servicios
 			$this->loadModel('Servicio');
-			$Servicios = $this->Servicio->query("SELECT id, precio FROM servicios WHERE precio > 0");
+			//$Servicios = $this->Servicio->query("SELECT id, precio FROM servicios WHERE precio >= 0");
+
+			$Servicios = $this->Servicio->find('all', array('fields' => array('Servicio.nombreservicio', 'Servicio.id', 'Servicio.precio'), 'conditions' => array('Servicio.precio >=' => 0), 'recursive' => -1));
 
 			//Obtenemos datos enviado por request post
 			$porcentaje = $this->request->data['cifra'];
@@ -269,9 +303,9 @@ class ServiciosController extends AppController {
 					//echo $servicio['servicios']['precio'] . "<br>";
 
 					//Calculamos el aumento
-					$precio = $servicio['servicios']['precio'];
+					$precio = $servicio['Servicio']['precio'];
 
-					$id = $servicio['servicios']['id'];
+					$id = $servicio['Servicio']['id'];
 
 					$resultado = $precio * $porcentaje;
 
@@ -279,41 +313,48 @@ class ServiciosController extends AppController {
 
 					$resultado = $precio + $resultado;
 
+					$x = $resultado;
+
 					//MODIFICAMOS RESULTADO PARA UN MEJOR MANEJO DEL EFECTIVO
-					$x = $resultado / 1000;
+					//$x = $resultado / 1000;
 
 					$x = ceil($x);
 
-					$x = $x * 1000;
+					$nuevo_precio = $x;
 
-					$y= $x - $resultado;
+					//$x = $x * 1000;
 
-					if ($y >= 500) {
+					//$y= $x - $resultado;
+
+					/*if ($y >= 500) {
 						$nuevo_precio = $x - 500;
 					}else{
 						$nuevo_precio = $x;
-					}
+					}*/
 					
 						//Guardar en Servicios
 						$datos = array('id' => $id, 'precio' => $nuevo_precio);
 
 						if ($this->Servicio->save($datos)) {
 							$resultado_final = true;
+
 						}else{
 							$resultado_final = false;
 						}
 
 					}//Fin foreach
 
+					
 
+				
 			} else {
 				foreach ($Servicios as $servicio) {
 					//echo $servicio['servicios']['precio'] . "<br>";
 
 					//Calculamos
-					$precio = $servicio['servicios']['precio'];
+					$precio = $servicio['Servicio']['precio'];
 
-					$id = $servicio['servicios']['id'];
+					$id = $servicio['Servicio']['id'];
 
 					$resultado = $precio * $porcentaje;
 
@@ -321,26 +362,31 @@ class ServiciosController extends AppController {
 
 					$resultado = $precio - $resultado;
 
+					$x = $resultado;
+
 					//MODIFICAMOS RESULTADO PARA UN MEJOR MANEJO DEL EFECTIVO
-					$x = $resultado / 1000;
+					//$x = $resultado / 1000;
 
 					$x = ceil($x);
 
-					$x = $x * 1000;
+					$nuevo_precio = $x;
 
-					$y= $x - $resultado;
+					//$x = $x * 1000;
 
-					if ($y >= 500) {
+					//$y= $x - $resultado;
+
+					/*if ($y >= 500) {
 						$nuevo_precio = $x - 500;
 					}else{
 						$nuevo_precio = $x;
-					}
+					}*/
 
 					//Guardar en Servicios
 					$datos = array('id' => $id, 'precio' => $nuevo_precio);
 
 					if ($this->Servicio->save($datos)) {
 						$resultado_final = true;
+
 					}else{
 						$resultado_final = false;
 					}
@@ -351,14 +397,64 @@ class ServiciosController extends AppController {
 			
 		
 			if ($resultado_final == true) {
-				$this->Flash->success('Los precios fueron modificados con exito');
+
+				$result = $this->guardar_precios_anteriores($Servicios);
+//debug($result);
+				if ($result == true) {
+					$this->Flash->success('Los precios fueron modificados con éxito y se hizo un respaldo de los precios anteriores');
 				$this->redirect(array('action' => 'index'));
+				}else{
+
+					$this->Flash->precioNoRespaldado('Los precios fueron modificados con éxito pero no se realizó un respaldo de los precios anteriores, notificar');
+			$this->redirect(array('action' => 'index'));
+				}
+				
 			}else{
 				$this->Flash->error('Los precios no pudieron ser modificados');
+
 			}
 		}
 
 	}//Fin modificar precios
+
+
+	//Funcion para restaurar precios a una fecha anterior
+	public function restaurar_precios() {
+
+		$this->loadModel('PreciosServicio');
+		$this->PreciosServicio->recursive = 0;
+		
+		$fechas = $this->PreciosServicio->find('all', array('fields' => array('DISTINCT PreciosServicio.created'), 'order' => array('PreciosServicio.created DESC')));
+
+		$this->set('fechas', $fechas, $this->paginate());
+
+		if (empty($servicio)) {
+			return false;
+		}else{
+			return true;
+		}
+
+
+	}//Fin restaurar precios
+
+
+	public function imprimir() {
+
+		$this->Servicio->recursive = 0;
+		$servicio = $this->Servicio->find('all', array('order' => 'Servicio.id ASC'), array('conditions' => array('Servicio.borrado' => 0)));
+		
+		
+		$this->pdfConfig = array(
+			'download' => true,
+			'filename' => 'Listado_Servicios_Terared.pdf'
+		);
+		$this->set('servicios', $servicio, $this->paginate());
+
+
+
+
+
+    }
 
 
 
