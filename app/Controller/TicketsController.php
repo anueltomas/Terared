@@ -1267,7 +1267,7 @@ class TicketsController extends AppController {
 
 			$this->loadModel('DetalleTicket');
 
-			$exists = $this->DetalleTicket->find('all', array('fields' => array('DetalleTicket.ticket_id', 'DetalleTicket.servicio_id'), 'conditions' => array('DetalleTicket.ticket_id' => $idTicket, 'DetalleTicket.servicio_id' => $idServicio)));
+			$exists = $this->DetalleTicket->find('all', array('fields' => array('DetalleTicket.ticket_id', 'DetalleTicket.servicio_id'), 'conditions' => array('DetalleTicket.ticket_id' => $idTicket, 'DetalleTicket.servicio_id' => $idServicio, 'DetalleTicket.borrado' => 0)));
 
 			if ($exists != null) {
 
