@@ -21,7 +21,7 @@
 
 <div class="box box-danger box-solid">
 	<div class="box-header with-border">
-		<h3 class="box-title"><i class="fa fa-money"></i> Tickets Pagados</h3>
+		<h3 class="box-title"><i class="fa fa-money"></i> Historico de tickets</h3>
 		<div class="box-tools pull-right">
 			<button class="btn btn-box-tool" data-widget="collapse">
 				<i class="fa fa-minus"></i>
@@ -73,14 +73,7 @@
 				
 				
 				<td class="actions">
-					<?php echo $this->Html->link(__('Ver'), array('controller' => 'tickets', 'action' => 'detalles', $ticket['Ticket']['id']), array('class' => 'btn btn-sm btn-danger')); ?>
-				</td>
-
-				<td>
-					<?php echo $this->Html->link("<i class='fa fa-foursquare'></i> Facturar", array('controller' => 'facturas',
-				'action' => 'factura_simple', $ticket['Ticket']['id']),array('class' => 'btn bg-olive pull-left', 'escape' => false)); 
-			?>	
-
+					<?php echo $this->Html->link(__('Ver'), array('controller' => 'tickets', 'action' => 'detalle_historico', $ticket['Ticket']['id']), array('class' => 'btn btn-sm btn-danger')); ?>
 				</td>
 
 			</tr>
@@ -116,5 +109,4 @@
 	
 	
 </div>
-
 

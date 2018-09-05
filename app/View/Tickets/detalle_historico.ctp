@@ -1,6 +1,6 @@
 <?php //debug($totales); ?>
 <?php //debug($detalles); ?>
-<?php //debug($tickets); ?>
+<?php //debug($tick); ?>
 <?php //debug($pagado); ?>
 
 <div class="box box-danger box-solid">
@@ -13,7 +13,7 @@
 		</div>
 	</div>
 
-
+	
 
 	<?php $total_pagado = $pagado['0']['0']['subtotal']; ?>
 
@@ -103,7 +103,7 @@
 
     
 
-      <?php echo $this->Html->link("<i class='fa fa-arrow-left'></i> Volver", array('action' => 'pagados'), array('type' => 'submit', 'class' => 'btn btn-danger pull-right', 'escape' => false)); 
+      <?php echo $this->Html->link("<i class='fa fa-arrow-left'></i> Volver", array('controller' => 'tickets', 'action' => 'historico_pagos'), array('type' => 'submit', 'class' => 'btn btn-danger pull-right', 'escape' => false)); 
       ?>
     </div>
   </div>

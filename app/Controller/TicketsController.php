@@ -4,7 +4,19 @@ App::uses('AppController', 'Controller');
 class TicketsController extends AppController {
 
 
-	public $components = array('Paginator');
+	//public $components = array('Paginator');
+
+	public $paginate = array(
+
+		'limit' => 10,
+		'order' => array(
+			'Ticket.id' => 'asc'
+
+			)
+
+		);
+
+
 
 	public function isAuthorized($usuario)
 	{
@@ -339,7 +351,7 @@ class TicketsController extends AppController {
 
 					$conditions = array('Ticket.estadoticket' => array('Por pagar'));
 					$ticket = $this->Ticket->find('all', array('conditions' => $conditions));
-					$this->set('tickets', $ticket, $this->Paginator->paginate());
+					$this->set('tickets', $ticket);
 
 					$this->loadModel('DetalleTicket');
 					$detalles = $this->DetalleTicket->find('all');
@@ -360,7 +372,7 @@ class TicketsController extends AppController {
 
 					$conditions = array('Ticket.estadoticket' => array('Pagado'));
 					$ticket = $this->Ticket->find('all', array('conditions' => $conditions, 'order' => array('Ticket.modified' => 'DESC'), 'limit' => 20));
-					$this->set('pagados', $ticket, $this->Paginator->paginate());
+					$this->set('pagados', $ticket);
 
 				} else {
 
@@ -496,11 +508,52 @@ class TicketsController extends AppController {
 	public function pagados() {
 
 		$this->Ticket->recursive = 0;
+		$this->Ticket->recursive = 0;
+		$this->paginate['Ticket']['limit'] = 10;
+		$this->paginate['Ticket']['conditions'] = array('Ticket.estadoticket' => 'Pagado');
+		$this->paginate['Ticket']['order'] = array('Ticket.id' => 'desc');
 
-					$conditions = array('Ticket.estadoticket' => array('Pagado'));
-					$ticket = $this->Ticket->find('all', array('conditions' => $conditions, 'order' => array('Ticket.modified' => 'DESC')));
-					$this->set('tickets', $ticket, $this->Paginator->paginate());
+					//$conditions = array('Ticket.estadoticket' => array('Pagado'));
+					//$ticket = $this->Ticket->find('all', array('conditions' => $conditions, 'order' => array('Ticket.modified' => 'DESC')));
+					//$this->set('tickets', $ticket, $this->Paginator->paginate());
+		$this->set('tickets', $this->paginate());
 
+		/*			$this->loadModel('DetalleTicket');
+					$detalles = $this->DetalleTicket->find('all');
+					$this->set('detalles', $detalles);
+
+					//Calculando total de tickets
+					$totaltickets = $this->DetalleTicket->find('all', array('fields' => array('ticket_id', 'SUM(DetalleTicket.monto) as subtotal'), 'group' => array('DetalleTicket.ticket_id')));
+
+
+					$this->set('totales', $totaltickets);
+
+					//Enviando datos de usuario
+					$this->loadModel('TurnoCajero');
+
+					$cajero = $this->TurnoCajero->find('first', array('conditions' => array('TurnoCajero.estadoturno' => 'A', 'TurnoCajero.usuario_id' => $this->Auth->user('id'))));
+
+					$this->set('cajero', $cajero);
+
+					$this->loadModel('DetallePago');
+					$pagos = $this->DetallePago->find('all');
+					$this->set('pagos', $pagos);
+		*/
+	}//FINAL PAGADOS
+
+	public function historico_pagos() {
+
+		$this->Ticket->recursive = 0;
+		$this->paginate['Ticket']['limit'] = 10;
+		$this->paginate['Ticket']['order'] = array('Ticket.id' => 'desc');
+			//$this->paginate['Ticket']['conditions'] => array('Ticket.estadoticket' => );
+			$this->set('tickets', $this->paginate());
+					//$conditions = array('Ticket.estadoticket' => array('Facturado'));
+					//$ticket = $this->Ticket->find('all', array('conditions' => $conditions, 'order' => array('Ticket.modified' => 'DESC')));
+					//$this->set('tickets', $ticket);
+
+					
+				/*
 					$this->loadModel('DetalleTicket');
 					$detalles = $this->DetalleTicket->find('all');
 					$this->set('detalles', $detalles);
@@ -521,8 +574,8 @@ class TicketsController extends AppController {
 					$this->loadModel('DetallePago');
 					$pagos = $this->DetallePago->find('all');
 					$this->set('pagos', $pagos);
-
-	}//FINAL PAGADOS
+				*/
+	}//FINAL historico_pago
 
 
 	public function total_pagados() {
@@ -875,69 +928,68 @@ class TicketsController extends AppController {
 				if ($respuesta == true) {
 
 
-                                                //Guardamos monto en ticket
-                                                $total_ticket = $this->calcular_total_ticket($idTicket);
+                    //Guardamos monto en ticket
+                    $total_ticket = $this->calcular_total_ticket($idTicket);
 
-                                                $montoticket = array('id' => $idTicket, 'montoticket' => $total_ticket);
-                                                if ($this->Ticket->saveAll($montoticket)) {
-                                                                //GUARDADO
-                                                }else{
-                                                        $this->Flash->error(__('El servicio no pudo ser añadido. Error al ingresar el monto en el ticket'));
-                                                }
-
-
-                                        $this->Flash->success(__('Ticket procesado exitosamente'));
-
-                                        $this->redirect(array('controller' => 'clientes', 'action' => 'index'));
+                     $montoticket = array('id' => $idTicket, 'montoticket' => $total_ticket);
+                if ($this->Ticket->saveAll($montoticket)) {
+                   //GUARDADO
+                }else{
+                    $this->Flash->error(__('El servicio no pudo ser añadido. Error al ingresar el monto en el ticket'));
+                }
 
 
-                                }else {
+  $this->Flash->success(__('Ticket procesado exitosamente'));
 
-                                        $this->Flash->error(__('Error al procesar ticket.'));
+  $this->redirect(array('controller' => 'tickets', 'action' => 'index'));
 
-                                }
+}else {
+
+     $this->Flash->error(__('Error al procesar ticket.'));
+
+ }
 
 
 						
-				//Buscamos si el usuario tiene un ticket en espera
-				$respuesta_2 = $this->verificar_ticket_en_espera();
+	//Buscamos si el usuario tiene un ticket en espera
+	$respuesta_2 = $this->verificar_ticket_en_espera();
 
-				if ($respuesta_2 == false) {
+	if ($respuesta_2 == false) {
 					
-				}else {
+	}else {
 
-					$idTicketEspera = $respuesta_2['Ticket']['id'];
+		$idTicketEspera = $respuesta_2['Ticket']['id'];
 
-					$this->cambiar_ticket_a_atencion($idTicketEspera);
+		$this->cambiar_ticket_a_atencion($idTicketEspera);
 
-					$this->redirect(array('action' => 'ticketactual'));
+		$this->redirect(array('action' => 'ticketactual'));
 
-				}
+	}
 
-				if ($respuesta == true) {
+	if ($respuesta == true) {
 
 					
-						//Guardamos monto en ticket
-						$total_ticket = $this->calcular_total_ticket($idTicket);
+		//Guardamos monto en ticket
+		$total_ticket = $this->calcular_total_ticket($idTicket);
 
-						$montoticket = array('id' => $idTicket, 'montoticket' => $total_ticket);
-						if ($this->Ticket->saveAll($montoticket)) {
+		$montoticket = array('id' => $idTicket, 'montoticket' => $total_ticket);
+	if ($this->Ticket->saveAll($montoticket)) {
 								//GUARDADO
-						}else{
-							$this->Flash->error(__('El servicio no pudo ser añadido. Error al ingresar el monto en el ticket'));
-						}
+	}else{
+		$this->Flash->error(__('El servicio no pudo ser añadido. Error al ingresar el monto en el ticket'));
+	}
 
 
-					$this->Flash->success(__('Ticket procesado exitosamente'));
+		$this->Flash->success(__('Ticket procesado exitosamente'));
 
-					$this->redirect(array('controller' => 'clientes', 'action' => 'index'));
+		$this->redirect(array('controller' => 'clientes', 'action' => 'index'));
 					
 
-				}else {
+	}else {
 
-					$this->Flash->error(__('Error al procesar ticket.'));
+		$this->Flash->error(__('Error al procesar ticket.'));
 
-				}
+	}
 
 			}
 
@@ -1400,7 +1452,7 @@ class TicketsController extends AppController {
 
 				//Buscamos y enviamos el detalle de ticket a cobrar
 				$this->loadModel('DetalleTicket');
-				$detalles = $this->DetalleTicket->find('all', array('conditions' => array('DetalleTicket.ticket_id' => $idTicket)));
+				$detalles = $this->DetalleTicket->find('all', array('conditions' => array('DetalleTicket.ticket_id' => $idTicket, 'DetalleTicket.borrado' => 0)));
 
 				$this->set(compact('detalles', $detalles, $this->Paginator->paginate()));
 
@@ -1440,11 +1492,16 @@ class TicketsController extends AppController {
 			$this->ingresar_pago($formapago, $idTicket);
 		}
 
+
+				//Enviamos el nombre del cliente
+			$ticket = $this->Ticket->find('all', array('conditions' => array('Ticket.id' => $idTicket)));
+			$this->set('tick', $ticket);
+
 				//Buscamos y enviamos el detalle de ticket a cobrar
 				$this->loadModel('DetalleTicket');
-				$detalles = $this->DetalleTicket->find('all', array('conditions' => array('DetalleTicket.ticket_id' => $idTicket)));
+				$detalles = $this->DetalleTicket->find('all', array('conditions' => array('DetalleTicket.ticket_id' => $idTicket, 'DetalleTicket.borrado' => 0)));
 
-				$this->set(compact('detalles', $detalles, $this->Paginator->paginate()));
+				$this->set(compact('detalles', $detalles));
 
 				//Calculamos y enviamos el total del ticket a cobrar
 				$total_ticket = $this->calcular_total_ticket($idTicket);
@@ -1463,6 +1520,48 @@ class TicketsController extends AppController {
 
 								
 	}//Fin function detalles
+
+
+	public function detalle_historico($idTicket = null) {
+
+		if (!$this->Ticket->exists($idTicket)) {
+			throw new NotFoundException(__('Id de ticket no válido '));
+		}
+
+		if ($this->request->is('post')) {
+			//debug($this->request->data);
+			$formapago = $this->request->data['Ticket']['forma_pago'];
+			$idTicket = $this->request->data['Ticket']['IdTicket'];
+
+			$this->ingresar_pago($formapago, $idTicket);
+		}
+
+			$ticket = $this->Ticket->find('all', array('conditions' => array('Ticket.id' => $idTicket)));
+			$this->set('tick', $ticket);
+
+				//Buscamos y enviamos el detalle de ticket a cobrar
+				$this->loadModel('DetalleTicket');
+				$detalles = $this->DetalleTicket->find('all', array('conditions' => array('DetalleTicket.ticket_id' => $idTicket, 'DetalleTicket.borrado' => 0)));
+
+				$this->set(compact('detalles', $detalles));
+
+				//Calculamos y enviamos el total del ticket a cobrar
+				$total_ticket = $this->calcular_total_ticket($idTicket);
+
+				$this->set('totalticket', $total_ticket);
+
+				$this->set('idTicket', $idTicket);
+
+
+
+				$totaltickets = $this->DetalleTicket->find('all', array('fields' => array('ticket_id', 'SUM(DetalleTicket.monto) as subtotal'), 'group' => array('DetalleTicket.ticket_id')));
+
+				$totalpagado = $this->Ticket->DetallePago->find('all', array('conditions' => array('DetallePago.ticket_id' => $idTicket), 'fields' => array('ticket_id', 'SUM(DetallePago.total) as subtotal')));
+
+				$this->set('pagado', $totalpagado);
+
+								
+	}//Fin function detalle_historico
 
 	//Procesar cobro de un ticket
 	public function procesar_ticket($idTicket = null) {
@@ -1654,6 +1753,13 @@ class TicketsController extends AppController {
 
 		$this->set('total', $total);
 
+
+
+	}
+
+
+	//Funcion para facturar un solo ticket
+	public function facturar_ticket(){
 
 
 	}

@@ -36,8 +36,12 @@
 				'action' => 'facturar'),array('class' => 'btn bg-olive pull-left', 'escape' => false)); 
 			?>	
 
-			<?php echo $this->Html->link("<i class='fa fa-money'></i> Tickets Pagados", array('controller' => 'tickets', 'action' => 'add'),array('class' => 'btn btn-danger pull-left', 'escape' => false, 'data-toggle' => 'modal', 'data-target' => '#modal-pagados')); 
+			<?php echo $this->Html->link("<i class='fa fa-money'></i> Tickets Pagados", array('controller' => 'tickets', 'action' => 'pagados'),array('class' => 'btn btn-danger pull-left', 'escape' => false)); 
        		 ?> 	
+
+       		 <?php /*echo $this->Html->link("<i class='fa fa-money'></i> Tickets Pagados", array('controller' => 'tickets', 'action' => 'add'),array('class' => 'btn btn-danger pull-left', 'escape' => false, 'data-toggle' => 'modal', 'data-target' => '#modal-pagados')); */
+       		 ?> 	
+
 
 			<?php echo $this->Form->postlink(__('Cerrar Turno'), array('action' => 'cerrar_turno', $cajero['TurnoCajero']['id']), array('class' => 'btn btn-danger pull-right', 'confirm' => __('Esta seguro que desea cerrar turno?'))); 
 			?>	

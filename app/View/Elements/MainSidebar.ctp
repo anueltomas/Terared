@@ -65,6 +65,8 @@
             <li><?php echo $this->Html->link("<i class='fa  fa-th-list'></i> Transferencias", array('controller' => 'bancos', 'action' => 'index'), array('escape' => false)); ?></li>
       
             <li><?php echo $this->Html->link("<i class='fa  fa-list-alt'></i> Resumen", array('controller' => 'resumen', 'action' => 'principal'), array('escape' => false)); ?></li>
+
+            <li><?php echo $this->Html->link("<i class='fa  fa-list-alt'></i> Historico de pagos", array('controller' => 'tickets', 'action' => 'historico_pagos'), array('escape' => false)); ?></li>
            </ul>
         </li>
 

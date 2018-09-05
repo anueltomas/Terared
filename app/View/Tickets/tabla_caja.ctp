@@ -23,9 +23,11 @@
 				<?php if($ticket['Ticket']['estadoticket'] == 'Por pagar') { ?>
 				
 				
-				<td class="actions">
-					<?php echo $this->Html->link(__('Ver'), array('action' => 'ver', $ticket['Ticket']['id']), array('class' => 'btn btn-sm btn-success')); ?>
-				</td>
+		<td class="actions">
+			<?php echo $this->Html->link(__('Ver'), array('action' => 'ver', $ticket['Ticket']['id']), array('class' => 'btn btn-sm btn-success')); ?>
+		</td>
+
+		
 
 				<?php } ?>
 			

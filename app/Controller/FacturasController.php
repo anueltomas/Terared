@@ -153,6 +153,106 @@ public function isAuthorized($usuario)
 		
 	}
 
+
+	//Funcion para facturar un solo ticket
+	public function factura_simple($id = null){
+
+		$this->loadModel('Ticket');
+
+		if (!$this->Ticket->exists($id)) {
+			throw new NotFoundException(__('Id del ticket no encontrado'));
+		}
+
+		$id_ticket = $id;
+
+		if ($this->request->is('post')) {
+			$this->Factura->create();
+			if ($this->Factura->save($this->request->data)) {
+
+				$idFactura = $this->Factura->find('first', array('fields' => 'id', 'order' => array('id' => 'DESC')));
+				$idFactura = $idFactura['Factura']['id'];
+				
+				//Guardamos el id de la factura en los tickets
+
+				//Buscando todos los tickets
+				$tickets = $this->Ticket->query(
+					"SELECT * FROM tickets, usuarios, turno_cajeros
+						WHERE tickets.estadoticket = 'Pagado'
+						AND tickets.turno_cajero_id = turno_cajeros.id
+						AND turno_cajeros.usuario_id = usuarios.id
+						AND tickets.estadoticket = 'Pagado'
+						AND turno_cajeros.estadoturno = 'A'
+						AND tickets.id = $id_ticket
+						");
+				
+				foreach ($tickets as $ticket) {
+					$idTicket = $ticket['tickets']['id'];
+
+					$datos = array('id' => $idTicket, 'factura_id' => $idFactura, 'estadoticket' => 'Facturado');
+
+					if ($this->Ticket->save($datos)) {
+						
+					}else{
+
+						throw new Exception("Error al guardar los datos en FacturasController->add", 1);
+						
+					}
+				}
+
+				
+				$this->Flash->success(__('La factura fué ingresada exitosamente.'));
+				return $this->redirect(array('controller' => 'tickets', 'action' => 'caja'));
+
+				
+				
+			} else {
+				$this->Flash->error(__('La Factura no pudo ser guardada.'));
+			}
+		}
+
+		$this->loadModel('Servicio');
+		$datos_a_facturar = $this->Servicio->query(
+			"SELECT tservicios.nombretipo AS tipo, SUM(detalle_tickets.monto) AS total
+				FROM tickets, detalle_tickets, servicios, usuarios, turno_cajeros, tservicios
+				WHERE tservicios.id = servicios.tservicio_id
+                AND servicios.id = detalle_tickets.servicio_id
+				AND detalle_tickets.ticket_id = tickets.id
+				AND detalle_tickets.ticket_id = $id_ticket
+				AND tickets.turno_cajero_id = turno_cajeros.id
+				AND turno_cajeros.usuario_id = usuarios.id
+				AND tickets.estadoticket = 'Pagado'
+				AND turno_cajeros.estadoturno = 'A'
+				AND detalle_tickets.borrado = 0
+				GROUP BY tservicios.nombretipo");
+
+		$this->set('datos', $datos_a_facturar);
+
+		$total = $this->Servicio->query(
+			"SELECT SUM(detalle_tickets.monto) AS total
+			FROM servicios, detalle_tickets, tickets, usuarios, turno_cajeros 
+			WHERE detalle_tickets.servicio_id = servicios.id 
+			AND detalle_tickets.ticket_id = tickets.id 
+			AND detalle_tickets.ticket_id = $id_ticket
+			AND tickets.turno_cajero_id = turno_cajeros.id 
+			AND turno_cajeros.usuario_id = usuarios.id 
+			AND turno_cajeros.estadoturno = 'A' 
+			AND tickets.estadoticket = 'Pagado'
+			AND detalle_tickets.borrado = 0"
+			);
+
+		$this->set('total', $total);
+
+		$facturas = $this->Factura->find('first', array('fields', array('Factura.nfactura'), 'order' => array('Factura.id' =>'desc')));
+
+		if(empty($facturas)){
+			$facturas = 9945;
+		}else{
+			$facturas = $facturas['Factura']['nfactura'];
+		}
+
+		$this->set('facturaanterior', $facturas);
+	}
+
 /**
  * edit method
  *
