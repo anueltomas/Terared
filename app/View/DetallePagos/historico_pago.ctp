@@ -105,9 +105,11 @@
 
 	<?php } ?>
 	</div>
+
+
 	<div class="box-footer">
 		<div class="form-group">
-			<?php echo $this->Html->link("<i class='fa fa-arrow-left'></i> Volver", array('controller' => 'tickets', 'action' => 'detalle_historico', $idTicket),array('type' => 'submit', 'class' => 'btn btn-danger pull-right', 'escape' => false)); 
+			<?php echo $this->Html->link("<i class='fa fa-arrow-left'></i> Volver", array('controller' => 'tickets', 'action' => 'historico_pagos'),array('type' => 'submit', 'class' => 'btn btn-danger pull-right', 'escape' => false)); 
 			?>
 		</div>
 	</div>

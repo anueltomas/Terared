@@ -84,7 +84,7 @@
 			                  		<span class="input-group-btn">
 
 
-				                      <?php echo $this->Html->link('Detalle', array('controller' => 'detallePagos', 'action' => 'historico_pago', $idTicket), array('class' => 'btn btn-primary')); ?>
+				                      <?php echo $this->Html->link('Detalle', array('controller' => 'detallePagos', 'action' => 'detalle_pago_factura', $idTicket, $idcierre), array('class' => 'btn btn-primary')); ?>
 				                    </span>
 			                    </div>
 
@@ -105,7 +105,7 @@
 
     
 
-      <?php echo $this->Html->link("<i class='fa fa-arrow-left'></i> Volver", array('controller' => 'tickets', 'action' => 'historico_pagos'), array('type' => 'submit', 'class' => 'btn btn-danger pull-right', 'escape' => false)); 
+      <?php echo $this->Html->link("<i class='fa fa-arrow-left'></i> Volver", array('controller' => 'cierres', 'action' => 'facturas_emitidas', $idcierre), array('type' => 'submit', 'class' => 'btn btn-danger pull-right', 'escape' => false)); 
       ?>
     </div>
   </div>

@@ -779,7 +779,7 @@ class TicketsController extends AppController {
 
 		$conditions = array('Ticket.estadoticket' => array('Atencion', 'Espera', 'Por pagar'), 'Ticket.borrado' => 0);
 		$ticket = $this->Ticket->find('all', array('conditions' => $conditions));
-		$this->set('tickets', $ticket, $this->Paginator->paginate());
+		$this->set('tickets', $ticket);
 
 		$this->loadModel('Usuario');
 
@@ -798,7 +798,7 @@ class TicketsController extends AppController {
 
 		$conditions = array('Ticket.estadoticket' => array('Pagado', 'Facturado'));
 		$ticket = $this->Ticket->find('all', array('conditions' => $conditions, 'order' => array('Ticket.modified' => 'DESC'), 'limit' => 20));
-		$this->set('pagados', $ticket, $this->Paginator->paginate());
+		$this->set('pagados', $ticket);
 
 		$this->loadModel('DetalleTicket');
 		$detalles = $this->DetalleTicket->find('all');
@@ -1454,7 +1454,7 @@ class TicketsController extends AppController {
 				$this->loadModel('DetalleTicket');
 				$detalles = $this->DetalleTicket->find('all', array('conditions' => array('DetalleTicket.ticket_id' => $idTicket, 'DetalleTicket.borrado' => 0)));
 
-				$this->set(compact('detalles', $detalles, $this->Paginator->paginate()));
+				$this->set(compact('detalles'));
 
 				//Calculamos y enviamos el total del ticket a cobrar
 				$total_ticket = $this->calcular_total_ticket($idTicket);
@@ -1707,7 +1707,7 @@ class TicketsController extends AppController {
 
 			$conditions = array('Ticket.estadoticket' => array('Por pagar'));
 			$ticket = $this->Ticket->find('all', array('conditions' => $conditions));
-			$this->set('tickets', $ticket, $this->Paginator->paginate());
+			$this->set('tickets', $ticket);
 	}
 
 	public function tabla_administrar() {
@@ -1733,6 +1733,7 @@ class TicketsController extends AppController {
 				WHERE tservicios.id = servicios.tservicio_id
                 AND servicios.id = detalle_tickets.servicio_id
 				AND detalle_tickets.ticket_id = tickets.id
+				AND detalle_tickets.borrado = 0
 				AND tickets.turno_cajero_id = turno_cajeros.id
 				AND turno_cajeros.usuario_id = usuarios.id
 				AND tickets.estadoticket = 'Pagado'
@@ -1746,6 +1747,7 @@ class TicketsController extends AppController {
 			FROM servicios, detalle_tickets, tickets, usuarios, turno_cajeros 
 			WHERE detalle_tickets.servicio_id = servicios.id 
 			AND detalle_tickets.ticket_id = tickets.id 
+			AND detalle_tickets.borrado = 0
 			AND tickets.turno_cajero_id = turno_cajeros.id 
 			AND turno_cajeros.usuario_id = usuarios.id 
 			AND turno_cajeros.estadoturno = 'A' 
@@ -1753,16 +1755,51 @@ class TicketsController extends AppController {
 
 		$this->set('total', $total);
 
-
-
 	}
 
 
-	//Funcion para facturar un solo ticket
-	public function facturar_ticket(){
+	public function tickets_facturas($idTicket = null, $idCierre = null) {
+
+		if (!$this->Ticket->exists($idTicket)) {
+			throw new NotFoundException(__('Id de ticket no válido '));
+		}
+
+		if ($this->request->is('post')) {
+			//debug($this->request->data);
+			$formapago = $this->request->data['Ticket']['forma_pago'];
+			$idTicket = $this->request->data['Ticket']['IdTicket'];
+
+			$this->ingresar_pago($formapago, $idTicket);
+		}
+
+			$ticket = $this->Ticket->find('all', array('conditions' => array('Ticket.id' => $idTicket)));
+			$this->set('tick', $ticket);
+
+				//Buscamos y enviamos el detalle de ticket a cobrar
+				$this->loadModel('DetalleTicket');
+				$detalles = $this->DetalleTicket->find('all', array('conditions' => array('DetalleTicket.ticket_id' => $idTicket, 'DetalleTicket.borrado' => 0)));
+
+				$this->set(compact('detalles', $detalles));
+
+				//Calculamos y enviamos el total del ticket a cobrar
+				$total_ticket = $this->calcular_total_ticket($idTicket);
+
+				$this->set('totalticket', $total_ticket);
+
+				$this->set('idTicket', $idTicket);
 
 
-	}
+
+				$totaltickets = $this->DetalleTicket->find('all', array('fields' => array('ticket_id', 'SUM(DetalleTicket.monto) as subtotal'), 'group' => array('DetalleTicket.ticket_id')));
+
+				$totalpagado = $this->Ticket->DetallePago->find('all', array('conditions' => array('DetallePago.ticket_id' => $idTicket), 'fields' => array('ticket_id', 'SUM(DetallePago.total) as subtotal')));
+
+				$this->set('pagado', $totalpagado);
+
+				$this->set('idcierre', $idCierre);
+
+								
+	}//Fin function tickets_facturas
 
 
 } //FIN CLASE

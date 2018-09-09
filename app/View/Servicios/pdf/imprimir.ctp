@@ -1,13 +1,17 @@
 <br>
 <center>
-	<h2>Inversiones Terared</h2>
+	<h3>Inversiones Terared</h3>
 
 	<h4>Lista de Servicios</h4>
+	Fecha: <?php echo date('d/m/Y'); ?>
 </center>
 
+
+<br>
 <br>
 
 <div style="text-align:center;">
+
 			<table border="2" style="margin: 0 auto;">
 				<thead>
 					<tr>

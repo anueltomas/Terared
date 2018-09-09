@@ -1,5 +1,6 @@
 <?php //debug($datos); ?>
 <?php //debug($total); ?>
+<?php //debug($prueba); ?>
 
 
 <?php $total = $total[0][0]['total']; ?>
@@ -104,8 +105,7 @@
       ?>
       <?php } ?>
     
-      <?php echo $this->Html->link("<i class='fa fa-arrow-left'></i> Volver", array(
-        'action' => 'caja'),array('type' => 'submit', 'class' => 'btn btn-danger pull-right', 'escape' => false)); 
+      <?php echo $this->Html->link("<i class='fa fa-arrow-left'></i> Volver", array('controller' => 'tickets', 'action' => 'pagados'),array('type' => 'submit', 'class' => 'btn btn-danger pull-right', 'escape' => false)); 
       ?>
     </div>
   </div>

@@ -29,6 +29,25 @@
 		</div>
 	</div>
 
+
+
+	<div class="box-footer">
+		<div class="form-group">
+
+	
+			<?php echo $this->Html->link("<i class='fa fa-foursquare'></i> Facturación", array(
+				'action' => 'facturar'),array('class' => 'btn bg-olive pull-left', 'escape' => false)); 
+			?>	
+
+			<?php echo $this->Html->link("<i class='fa  fa-list-alt'></i> Cobrar", array('controller' => 'tickets', 'action' => 'caja'), array('class' => 'btn bg-navy pull-left', 'escape' => false)); ?>
+
+
+
+
+
+		</div>
+	</div>
+
 	
 
     

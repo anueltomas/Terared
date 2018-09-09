@@ -2,7 +2,7 @@
 <?php //debug($totales); ?>
 <?php //debug($detalles); ?>
 <?php //debug($usuarios); ?>
-<?php //debug($tickets); ?>
+<?php //debug($pagados); ?>
 <?php echo $this->Html->script(array('myjs/buscar')); ?>
 <div class="box box-primary box-solid">
 	<div class="box-header with-border">

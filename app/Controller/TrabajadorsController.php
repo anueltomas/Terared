@@ -138,6 +138,10 @@ class TrabajadorsController extends AppController {
 	}
 
 
+	public function est_trabajadores(){
+
+		
+	}
 
 	
 

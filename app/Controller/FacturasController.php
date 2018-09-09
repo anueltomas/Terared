@@ -20,10 +20,11 @@ public function isAuthorized($usuario)
 
 		$privilegio = $this->Session->read('privilegio_id');
 
-		if ($privilegio === '4') {
+
+		if ($privilegio == '4') {
 
 			
-				if (in_array($this->action, array('add'))) {
+				if (in_array($this->action, array('add', 'factura_simple'))) {
 				return true;
 				}
 						
@@ -119,6 +120,7 @@ public function isAuthorized($usuario)
 				WHERE tservicios.id = servicios.tservicio_id
                 AND servicios.id = detalle_tickets.servicio_id
 				AND detalle_tickets.ticket_id = tickets.id
+				AND detalle_tickets.borrado = 0
 				AND tickets.turno_cajero_id = turno_cajeros.id
 				AND turno_cajeros.usuario_id = usuarios.id
 				AND tickets.estadoticket = 'Pagado'
@@ -132,6 +134,7 @@ public function isAuthorized($usuario)
 			FROM servicios, detalle_tickets, tickets, usuarios, turno_cajeros 
 			WHERE detalle_tickets.servicio_id = servicios.id 
 			AND detalle_tickets.ticket_id = tickets.id 
+			AND detalle_tickets.borrado = 0
 			AND tickets.turno_cajero_id = turno_cajeros.id 
 			AND turno_cajeros.usuario_id = usuarios.id 
 			AND turno_cajeros.estadoturno = 'A' 

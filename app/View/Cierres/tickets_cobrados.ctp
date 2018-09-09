@@ -3,6 +3,7 @@
 <?php //debug($tickets); ?>
 <?php //debug($cajero); ?>
 <?php //debug($pagos); ?>
+<?php //debug($idcierre); ?>
 
 
 
@@ -19,9 +20,9 @@
 
 <div id="tabla-tickets">
 
-<div class="box box-danger box-solid">
+<div class="box box-warning box-solid">
 	<div class="box-header with-border">
-		<h3 class="box-title"><i class="fa fa-money"></i> Historico de pagos</h3>
+		<h3 class="box-title"><i class="fa fa-money"></i> Historico de tickets</h3>
 		<div class="box-tools pull-right">
 			<button class="btn btn-box-tool" data-widget="collapse">
 				<i class="fa fa-minus"></i>
@@ -73,7 +74,7 @@
 				
 				
 				<td class="actions">
-					<?php echo $this->Html->link(__('Ver'), array('controller' => 'tickets', 'action' => 'detalle_historico', $ticket['Ticket']['id']), array('class' => 'btn btn-sm btn-danger')); ?>
+					<?php echo $this->Html->link(__('Ver'), array('controller' => 'cierres', 'action' => 'detalle_tickets', $ticket['Ticket']['id'], $idturno, $idcierre), array('class' => 'btn btn-sm btn-danger')); ?>
 				</td>
 
 			</tr>
@@ -105,7 +106,18 @@
 
 <?php } ?>
 
+<div class="box-footer">
+		<div class="form-group">
+			<?php echo $this->Html->link("<i class='fa fa-arrow-left'></i> Volver", array('controller' => 'cierres', 'action' => 'ver', $idturno, $idcierre), array('type' => 'submit', 'class' => 'btn btn-danger pull-right', 'escape' => false)); 
+			?>
+		</div>
 	</div>
+
+
+
+	</div>
+
+
 	
 	
 </div>

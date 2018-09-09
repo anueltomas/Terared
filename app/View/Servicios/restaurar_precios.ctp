@@ -24,7 +24,7 @@
 <?php if ($seleccion == 0) {
 ?>
 
-<center><h1>Debe seleccionar una fecha</h1></center>
+<center><h1>Módulo actualmente en desarrollo</h1></center>
 <?php
 } else {
 

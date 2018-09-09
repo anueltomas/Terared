@@ -221,6 +221,65 @@ class DetallePagosController extends AppController {
 
 	}
 
+	public function pago_historico($idTicket = null, $volver = null, $idTurno = null, $idCierre = null){
+
+		if ($idTicket == null) {
+			throw new NotFoundException("Id de ticket no encontrado", 1);
+		}
+
+		$detalletransferencias = $this->DetallePago->find('all', array('conditions' => array('DetallePago.ticket_id' => $idTicket, 'DetallePago.transferencia_id !=' => null)));
+
+		$detalleefectivos = $this->DetallePago->find('all', array('conditions' => array('DetallePago.ticket_id' => $idTicket, 'DetallePago.efectivo_id !=' => null)));
+
+		$detallepuntos = $this->DetallePago->find('all', array('conditions' => array('DetallePago.ticket_id' => $idTicket, 'DetallePago.punto_id !=' => null)));
+
+		$this->set(compact('detalletransferencias', 'detalleefectivos', 'detallepuntos', 'idTicket'));
+
+		$this->set('volver', $volver);
+
+		$this->set('idturno', $idTurno);
+
+		$this->set('idcierre', $idCierre);
+
+	}
+
+
+	public function historico_pago($idTicket = null){
+
+		if ($idTicket == null) {
+			throw new NotFoundException("Id de ticket no encontrado", 1);
+		}
+
+		$detalletransferencias = $this->DetallePago->find('all', array('conditions' => array('DetallePago.ticket_id' => $idTicket, 'DetallePago.transferencia_id !=' => null)));
+
+		$detalleefectivos = $this->DetallePago->find('all', array('conditions' => array('DetallePago.ticket_id' => $idTicket, 'DetallePago.efectivo_id !=' => null)));
+
+		$detallepuntos = $this->DetallePago->find('all', array('conditions' => array('DetallePago.ticket_id' => $idTicket, 'DetallePago.punto_id !=' => null)));
+
+		$this->set(compact('detalletransferencias', 'detalleefectivos', 'detallepuntos', 'idTicket'));
+
+
+	}
+
+	public function detalle_pago_factura($idTicket = null, $idCierre = null){
+
+		if ($idTicket == null) {
+			throw new NotFoundException("Id de ticket no encontrado", 1);
+		}
+
+		$detalletransferencias = $this->DetallePago->find('all', array('conditions' => array('DetallePago.ticket_id' => $idTicket, 'DetallePago.transferencia_id !=' => null)));
+
+		$detalleefectivos = $this->DetallePago->find('all', array('conditions' => array('DetallePago.ticket_id' => $idTicket, 'DetallePago.efectivo_id !=' => null)));
+
+		$detallepuntos = $this->DetallePago->find('all', array('conditions' => array('DetallePago.ticket_id' => $idTicket, 'DetallePago.punto_id !=' => null)));
+
+		$this->set(compact('detalletransferencias', 'detalleefectivos', 'detallepuntos', 'idTicket'));
+
+		$this->set('idcierre', $idCierre);
+
+
+	}
+
 
 
 

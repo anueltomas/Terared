@@ -13,7 +13,18 @@ class ResumenController extends AppController {
  *
  * @var array
  */
-	public $components = array('Paginator');
+	//public $components = array('Paginator');
+
+
+	public $paginate = array(
+
+		'limit' => 10,
+		'order' => array(
+			'Cierre.id' => 'asc'
+
+			)
+
+		);
 
 public function isAuthorized($usuario)
 	{
@@ -180,9 +191,13 @@ public function isAuthorized($usuario)
 	public function principal() {
 		$this->loadModel('Cierre');
 
-		$cierres = $this->Cierre->find('all', array('order' => array('Cierre.id' => 'DESC'), 'recursive' => -1));
+		$this->paginate['Cierre']['limit'] = 20;
+		$this->paginate['Cierre']['order'] = array('Cierre.id' => 'desc');
+		$this->set('cierres', $this->paginate());
+
+		//$cierres = $this->Cierre->find('all', array('order' => array('Cierre.id' => 'DESC'), 'recursive' => -1));
 		//$ticket = $this->Ticket->find('all', array('conditions' => array('Pagado'), 'order' => array('Ticket.modified' => 'DESC')));
-		$this->set('cierres', $cierres);
+		//$this->set('cierres', $cierres);
 	}
 
 

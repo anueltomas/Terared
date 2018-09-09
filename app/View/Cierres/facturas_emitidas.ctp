@@ -1,8 +1,5 @@
-<?php //debug($totales); ?>
-<?php //debug($detalles); ?>
-<?php //debug($tickets); ?>
-<?php //debug($cajero); ?>
-<?php //debug($pagos); ?>
+
+<?php //debug($prueba); ?>
 
 
 
@@ -19,9 +16,9 @@
 
 <div id="tabla-tickets">
 
-<div class="box box-danger box-solid">
+<div class="box box-success box-solid">
 	<div class="box-header with-border">
-		<h3 class="box-title"><i class="fa fa-money"></i> Historico de pagos</h3>
+		<h3 class="box-title"><i class="fa fa-money"></i> Facturas emitidas</h3>
 		<div class="box-tools pull-right">
 			<button class="btn btn-box-tool" data-widget="collapse">
 				<i class="fa fa-minus"></i>
@@ -36,9 +33,9 @@
 	<div class="box-body">
 	<br><br>
 
-      <?php if ($tickets == null) { ?>
+      <?php if ($turnos == null) { ?>
 
-      <h1>No existen tickets generados</h1>
+      <h1>No existen facturas generadas</h1>
 
       <?php } else { ?>
 
@@ -49,31 +46,29 @@
 			<table class="table">
 				<thead>
 					<tr>
-						<th><?php echo $this->Paginator->sort('N° Ticket'); ?></th>
-						<th><?php echo $this->Paginator->sort('Estado'); ?></th>
-						<th><?php echo $this->Paginator->sort('Nombre del Cliente'); ?></th>
-						<th><?php echo $this->Paginator->sort('Total'); ?></th>
+						<th><?php echo $this->Paginator->sort('N° Factura'); ?></th>
+						<th><?php echo $this->Paginator->sort('Cliente'); ?></th>
 						<th><?php echo $this->Paginator->sort('Fecha'); ?></th>
+						<th><?php echo $this->Paginator->sort('Total'); ?></th>
 					</tr>
 				</thead>
 				<tbody>
-					<?php foreach ($tickets as $ticket): ?>
+					<?php foreach ($turnos as $turno): ?>
 						
 					<tr>
-				<td><?php echo h($ticket['Ticket']['numeroticket']); ?>&nbsp;</td>
+				<td><?php echo h($turno['Factura']['nfactura']); ?>&nbsp;</td>
 
-				<td><?php echo h($ticket['Ticket']['estadoticket']); ?>&nbsp;</td>
+				<td><?php echo h($turno['Cliente']['nombre']); ?>&nbsp;</td>
 
-				<td><?php echo h($ticket['Cliente']['nombre']); ?>&nbsp;</td>
+				<td><?php echo h($turno['Factura']['created']); ?>&nbsp;</td>
 
-				<td><?php echo number_format($ticket['Ticket']['montoticket'], 2,",","."); ?> Bs.</td>
+				<td><?php echo number_format($turno['Factura']['totalfactura'], 2,",","."); ?> Bs.</td>
 
-				<td><?php echo h($ticket['Ticket']['modified']); ?></td>
-		
+						
 				
 				
 				<td class="actions">
-					<?php echo $this->Html->link(__('Ver'), array('controller' => 'tickets', 'action' => 'detalle_historico', $ticket['Ticket']['id']), array('class' => 'btn btn-sm btn-danger')); ?>
+					<?php echo $this->Html->link(__('Ver Tickets'), array('controller' => 'tickets', 'action' => 'tickets_facturas', $turno['Ticket']['id'], $idcierre), array('class' => 'btn btn-sm btn-danger')); ?>
 				</td>
 
 			</tr>
@@ -105,7 +100,18 @@
 
 <?php } ?>
 
+<div class="box-footer">
+		<div class="form-group">
+			<?php echo $this->Html->link("<i class='fa fa-arrow-left'></i> Volver", $this->request->referer(), array('type' => 'submit', 'class' => 'btn btn-danger pull-right', 'escape' => false)); 
+			?>
+		</div>
 	</div>
+
+
+
+	</div>
+
+
 	
 	
 </div>

@@ -450,11 +450,12 @@ class ServiciosController extends AppController {
 		);
 		$this->set('servicios', $servicio, $this->paginate());
 
-
-
-
-
     }
+
+
+    public function est_servicios(){
+		
+	}
 
 
 

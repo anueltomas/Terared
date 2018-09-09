@@ -105,9 +105,21 @@
 
 	<?php } ?>
 	</div>
+
+<?php 
+	if ($volver == 'C') {
+		$controller = 'cierres';
+		$accion = 'detalle_tickets';
+	}else{
+		$controller = 'tickets';
+		$accion = 'detalle_tickets';
+	}
+
+ ?>
+
 	<div class="box-footer">
 		<div class="form-group">
-			<?php echo $this->Html->link("<i class='fa fa-arrow-left'></i> Volver", array('controller' => 'tickets', 'action' => 'detalle_historico', $idTicket),array('type' => 'submit', 'class' => 'btn btn-danger pull-right', 'escape' => false)); 
+			<?php echo $this->Html->link("<i class='fa fa-arrow-left'></i> Volver", array('controller' => $controller, 'action' => $accion, $idTicket, $idturno, $idcierre),array('type' => 'submit', 'class' => 'btn btn-danger pull-right', 'escape' => false)); 
 			?>
 		</div>
 	</div>

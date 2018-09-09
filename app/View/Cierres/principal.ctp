@@ -1,15 +1,13 @@
+<?php //debug($cierres); ?>
 <?php //debug($totales); ?>
 <?php //debug($detalles); ?>
 <?php //debug($tickets); ?>
 <?php //debug($cajero); ?>
-<?php //debug($pagos); ?>
-
-
 
 <?php
 
 	$this->Paginator->options(array(
-		'update' => '#tabla-tickets',
+		'update' => '#tabla-cierres',
 		'before' => $this->Js->get('#procesando')->effect('fadeIn', array('buffer' => false)),
 		'complete' => $this->Js->get('#procesando')->effect('fadeOut', array('buffer' => false))
 		)
@@ -17,11 +15,12 @@
 
 ?>
 
-<div id="tabla-tickets">
+<div id="tabla-cierres">
+
 
 <div class="box box-danger box-solid">
 	<div class="box-header with-border">
-		<h3 class="box-title"><i class="fa fa-money"></i> Historico de pagos</h3>
+		<h3 class="box-title"><i class="fa fa-money"></i> Resumen de Cierres</h3>
 		<div class="box-tools pull-right">
 			<button class="btn btn-box-tool" data-widget="collapse">
 				<i class="fa fa-minus"></i>
@@ -31,57 +30,62 @@
 
 	
 
-    
+     <div class="box-footer">
+		<div class="form-group">
+
+		
+								
+
+
+		</div>
+	</div>
 
 	<div class="box-body">
-	<br><br>
-
-      <?php if ($tickets == null) { ?>
-
-      <h1>No existen tickets generados</h1>
-
-      <?php } else { ?>
+	
 
 
+     
+      
 
-      <div class="col-md-10 col-md-offset-1">
-		<div class="table-responsive">
-			<table class="table">
-				<thead>
-					<tr>
-						<th><?php echo $this->Paginator->sort('N° Ticket'); ?></th>
-						<th><?php echo $this->Paginator->sort('Estado'); ?></th>
-						<th><?php echo $this->Paginator->sort('Nombre del Cliente'); ?></th>
-						<th><?php echo $this->Paginator->sort('Total'); ?></th>
-						<th><?php echo $this->Paginator->sort('Fecha'); ?></th>
-					</tr>
-				</thead>
-				<tbody>
-					<?php foreach ($tickets as $ticket): ?>
+     	<div class="table-responsive">
+     		<div class="col-xs-12 col-md-8 col-md-offset-2">
+					
+				<div class="box-body">
+					<table class="table tabla-condensed table-striped"">
+						<thead>
+							<tr>
+								<th><?php echo $this->Paginator->sort('Id'); ?></th>
+								<th><?php echo $this->Paginator->sort('Total Cierre'); ?></th>
+								<th><?php echo $this->Paginator->sort('Fecha'); ?></th>
+								<th class="actions"><?php echo __('Acciones'); ?></th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php foreach ($cierres as $cierre): ?>
 						
-					<tr>
-				<td><?php echo h($ticket['Ticket']['numeroticket']); ?>&nbsp;</td>
+							<tr>
+								<td><?php echo h($cierre['Cierre']['id']); ?>&nbsp;</td>
 
-				<td><?php echo h($ticket['Ticket']['estadoticket']); ?>&nbsp;</td>
 
-				<td><?php echo h($ticket['Cliente']['nombre']); ?>&nbsp;</td>
+								<td><?php echo number_format($cierre['Cierre']['montocierre'], 2,",","."); ?> Bs.</td>
 
-				<td><?php echo number_format($ticket['Ticket']['montoticket'], 2,",","."); ?> Bs.</td>
+								<td><?php echo $this->Time->format('d-m-Y ; h:i A', h($cierre['Cierre']['created'])); ?></td>
+								
+								<td class="actions">
+									<?php echo $this->Html->link(__('Ver'), array('action' => 'detalle', $cierre['Cierre']['id']), array('class' => 'btn btn-sm btn-success')); ?>
+								</td>
 
-				<td><?php echo h($ticket['Ticket']['modified']); ?></td>
-		
-				
-				
-				<td class="actions">
-					<?php echo $this->Html->link(__('Ver'), array('controller' => 'tickets', 'action' => 'detalle_historico', $ticket['Ticket']['id']), array('class' => 'btn btn-sm btn-danger')); ?>
-				</td>
+						
+			
 
-			</tr>
 
-					<?php endforeach; ?>
-				</tbody>
-			</table>
+							</tr>
 
+							<?php endforeach; ?>
+						</tbody>
+					</table>
+
+			
 			<div class="progress oculto" id="procesando">
 	        	<div class="progress-bar progress-bar-striped" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"><span class="sr-only">100% Complete</span>
 	        	</div>
@@ -98,15 +102,23 @@
 		        </ul>
 
 		        <?php echo $this->Js->writeBuffer(); ?>
-			
+			    </div>
+			</div>
 		</div>
-		</div>
-</div>
 
-<?php } ?>
+
 
 	</div>
 	
 	
 </div>
+
+</div>
+
+
+
+
+
+
+
 
