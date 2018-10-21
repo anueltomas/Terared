@@ -15,6 +15,17 @@
 		</div>
 	</div>
 
+	<div class="box-footer">
+		<div class="form-group">	
+
+			<?php echo $this->Html->link("<i class='fa fa-print'></i> Imprimir Precios", array(
+				'action' => 'imprimir', 'ext' => 'pdf'),array('class' => 'btn btn-default pull-right', 'escape' => false)); 
+			?>		
+
+		</div>
+	</div>
+
+
 	<!-- search form (Optional) -->
      
             <?php echo $this->Form->create('Servicio', array('type' => 'GET', 'class' => 'sidebar-form', 'url' => array('controller' => 'servicios', 'action' => 'buscar'))); ?>

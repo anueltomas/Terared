@@ -1,14 +1,4 @@
 <?php
-use Cake\Event\Event;
-use Cake\Event\EventManager;
-
-EventManager::instance()
-    ->on(
-        'Controller.initialize',
-        function (Event $event) {
-            $controller = $event->getSubject();
-            if ($controller->components()->has('RequestHandler')) {
-                $controller->RequestHandler->setConfig('viewClassMap.pdf', 'CakePdf.Pdf');
-            }
-        }
-    );
+App::build(array('Pdf' => array('%s' . 'Pdf' . DS)), App::REGISTER);
+App::build(array('Pdf/Engine' => array('%s' . 'Pdf/Engine' . DS)), App::REGISTER);
+App::uses('PdfView', 'CakePdf.View');

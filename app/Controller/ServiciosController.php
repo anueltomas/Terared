@@ -209,7 +209,7 @@ class ServiciosController extends AppController {
 
 	public function isAuthorized($usuario){
 		//Todos los usuarios registrados puden ver el listado de servicios
-		if ($this->action==='listado' || $this->action==='buscarjson') {
+		if ($this->action==='listado' || $this->action==='buscarjson' || $this->action==='imprimir') {
 				return true;
 		}
 		return parent::isAuthorized($usuario);
@@ -438,7 +438,9 @@ class ServiciosController extends AppController {
 	}//Fin restaurar precios
 
 
-	public function imprimir() {
+	/*public function imprimir() {
+
+		
 
 		$this->Servicio->recursive = 0;
 		$servicio = $this->Servicio->find('all', array('order' => 'Servicio.id ASC'), array('conditions' => array('Servicio.borrado' => 0)));
@@ -450,6 +452,33 @@ class ServiciosController extends AppController {
 		);
 		$this->set('servicios', $servicio, $this->paginate());
 
+    }*/
+
+    /*
+		NOTA IMPORTANTE:
+		PARA LA VISUALIZACION DE LOS ARCHIVOS EN FORMATO PDF, SE TUVO QUE IMPORTAR DESD LA VISTA
+		DONDE ESTA PRESENTE TODA LA INFORMACION QUE SERA MOSTRADA AL USUARIO EL ARCHIVO tcpdf de:
+		App::import('Vendor', 'tcpdf/tcpdf');
+		A SU VEZ ANTES DE MOSTRAR DICHO ARCHIVO DEBEMOS LIMPIAR EL BUFFER CON ob_end_clean() en la lineas 112 del archivo imprimir.ctp
+    */
+
+
+    public function imprimir($id = 2){
+
+    	if (!$id)
+        {
+            $this->Session->setFlash('no has seleccionado ningun pdf.');
+            $this->redirect(array('action'=>'index'));
+        }
+        // Sobrescribimos para que no aparezcan los resultados de debuggin
+        // ya que sino daria un error al generar el pdf.
+        Configure::write('debug', 0);
+        $resultado = $this->Servicio->find('all', array('order' => 'Servicio.id ASC'), array('conditions' => array('Servicio.borrado' => 0))); 
+        $this->set('servicios',$resultado);
+        $this->layout = 'pdf'; //esto usara el layout pdf.ctp
+
+        $this->render();
+		
     }
 
 
