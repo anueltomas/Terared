@@ -27,6 +27,14 @@
 				'action' => 'modificar_precios',),array('class' => 'btn btn-default pull-left', 'escape' => false)); 
 			?>		
 
+			<?php echo $this->Html->link("<i class='fa fa-rotate-left'></i> Restaurar Precios", array(
+				'action' => 'restaurar_precios',),array('class' => 'btn btn-default pull-left', 'escape' => false)); 
+			?>		
+
+			<?php echo $this->Html->link("<i class='fa fa-print'></i> Imprimir Precios", array(
+				'action' => 'imprimir', 'ext' => 'pdf'),array('class' => 'btn btn-default pull-right', 'escape' => false)); 
+			?>		
+
 		</div>
 	</div>
 

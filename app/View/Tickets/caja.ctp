@@ -36,8 +36,12 @@
 				'action' => 'facturar'),array('class' => 'btn bg-olive pull-left', 'escape' => false)); 
 			?>	
 
-			<?php echo $this->Html->link("<i class='fa fa-money'></i> Tickets Pagados", array('controller' => 'tickets', 'action' => 'add'),array('class' => 'btn btn-danger pull-left', 'escape' => false, 'data-toggle' => 'modal', 'data-target' => '#modal-pagados')); 
+			<?php echo $this->Html->link("<i class='fa fa-money'></i> Tickets Pagados", array('controller' => 'tickets', 'action' => 'pagados'),array('class' => 'btn btn-danger pull-left', 'escape' => false)); 
        		 ?> 	
+
+       		 <?php /*echo $this->Html->link("<i class='fa fa-money'></i> Venta", array('controller' => 'tickets', 'action' => 'add'),array('class' => 'btn btn-danger pull-left', 'escape' => false, 'data-toggle' => 'modal', 'data-target' => '#modal-pagados')); */
+       		 ?> 	
+
 
 			<?php echo $this->Form->postlink(__('Cerrar Turno'), array('action' => 'cerrar_turno', $cajero['TurnoCajero']['id']), array('class' => 'btn btn-danger pull-right', 'confirm' => __('Esta seguro que desea cerrar turno?'))); 
 			?>	
@@ -148,10 +152,13 @@
 							<div id="ticketsPorCobrar">
 
 							</div>
+							<!--
 							<div class="progress oculto" id="procesando">
 			        			<div class="progress-bar progress-bar-striped" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"><span class="sr-only">100% Complete</span>
 			        			</div>
 			      			</div>
+			      			-->
+	
 			      		</div>
 					</div>
 				</div>

@@ -147,12 +147,16 @@
 			</tbody>
 
 		</table>
+
+
+
 	</h4>
 		
 	</div>
 	</div>
 
-	
+	<?php echo $this->Html->link("<i class=''></i> Tickets Cobrados", array('action' => 'tickets_cobrados', $idcierre), array('type' => 'submit', 'class' => 'btn btn-warning pull-left', 'escape' => false)); 
+			?>
 	
 	</div>
 </div>

@@ -1,0 +1,38 @@
+h1, h2, h3, h4 {
+    font-weight: normal;
+    margin-bottom:0.5em;
+}
+h2 {
+    background: #fff;
+    color: #15848F;
+    font-family:'Gill Sans','lucida grande', helvetica, arial, sans-serif;
+    font-size: 190%;
+}
+/** Scaffold View **/
+dl {
+    line-height: 2em;
+    margin: 0em 0em;
+    width: 100%;
+    background: #f4f4f4;
+}
+
+dt {
+	color: #15848F;
+    font-weight: bold;
+    padding-left: 4px;
+    vertical-align: top;
+    width: 10em;
+}
+dd {
+    margin-left: 10em;
+    margin-top: -2em;
+    vertical-align: top;
+    display: inline-block;
+}
+#content{
+    background: #fff;
+    clear: both;
+    color: #333;
+    padding: 10px 60px 40px 60px;
+    overflow: auto;
+}

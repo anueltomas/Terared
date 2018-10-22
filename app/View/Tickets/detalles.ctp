@@ -13,6 +13,8 @@
 		</div>
 	</div>
 
+
+
 	<?php $total_pagado = $pagado['0']['0']['subtotal']; ?>
 
 	<?php if ($total_pagado == null || $total_pagado == 0): ?>
@@ -30,6 +32,8 @@
 	
 
 	<div class="box-body">
+
+	<h3>Cliente: <?php echo $tick['0']['Cliente']['nombre'];?></h3>
 	
 <?php //debug($detalles) ?>
 <?php //debug($datosTicket) ?>
@@ -78,7 +82,7 @@
 		                  		<div class="input-group">
 			                  		<?php echo $this->Form->input('', array('label' => false, 'class' => 'form-control', 'Default' => 'Punto', 'disabled' => true, 'value' => number_format($total_pagado, 2,",","."))); ?> 
 			                  		<span class="input-group-btn">
-				                      <?php echo $this->Html->link('Detalle', array('controller' => 'detallePagos', 'action' => 'pagos', $idTicket), array('class' => 'btn btn-primary')); ?>
+		                      <?php echo $this->Html->link('Detalle', array('controller' => 'detallePagos', 'action' => 'pagos', $idTicket), array('class' => 'btn btn-primary')); ?>
 				                    </span>
 			                    </div>
 

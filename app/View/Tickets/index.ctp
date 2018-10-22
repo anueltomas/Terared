@@ -2,7 +2,7 @@
 <?php //debug($totales); ?>
 <?php //debug($detalles); ?>
 <?php //debug($usuarios); ?>
-<?php //debug($tickets); ?>
+<?php //debug($pagados); ?>
 <?php echo $this->Html->script(array('myjs/buscar')); ?>
 <div class="box box-primary box-solid">
 	<div class="box-header with-border">
@@ -143,9 +143,11 @@
 							<div id="listaTickets">
 
 							</div>
+<!--
 							<div class="progress oculto" id="procesando">
 			        			<div class="progress-bar progress-bar-striped" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"><span class="sr-only">100% Complete</span>
 			        			</div>
+-->
 			      			</div>
 			      		</div>
 					</div>
