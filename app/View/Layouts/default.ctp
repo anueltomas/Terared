@@ -61,7 +61,8 @@ scratch. This page gets rid of all links and provides the needed markup only.
           </div>
           
           <h1>
-            <small>Inversiones TeraRED "Navega, imprime, copia y más..."</small>
+            Inversiones TeraRED
+            <small>"Navega, imprime, copia y más..."</small>
           </h1>
 
           <ol class="breadcrumb">
@@ -117,6 +118,8 @@ scratch. This page gets rid of all links and provides the needed markup only.
        <?php //echo $this->Html->script('adminlte/iCheck/icheck.min'); ?>
        <?php echo $this->Html->script('highchart/highcharts.js'); ?>
        <?php echo $this->Html->script('highchart/exporting.js'); ?>
+       <?php echo $this->Html->script('datatables.net/js/jquery.dataTables.min.js'); ?>
+       <?php echo $this->Html->script('datatables.net-bs/js/dataTables.bootstrap.min.js'); ?>
 
       <script type="text/javascript">
         var basePath = "<?php echo Router::url('/');?>"

@@ -66,7 +66,7 @@
       
             <li><?php echo $this->Html->link("<i class='fa  fa-list-alt'></i> Resumen de Cierres", array('controller' => 'cierres', 'action' => 'principal'), array('escape' => false)); ?></li>
 
-            <li><?php echo $this->Html->link("<i class='fa  fa-list-alt'></i> Historico de pagos", array('controller' => 'tickets', 'action' => 'historico_pagos'), array('escape' => false)); ?></li>
+            <li><?php echo $this->Html->link("<i class='fa  fa-list-alt'></i> Historico de Tickets", array('controller' => 'tickets', 'action' => 'historico_pagos'), array('escape' => false)); ?></li>
            </ul>
         </li>
 
@@ -80,9 +80,9 @@
 
            <li><?php echo $this->Html->link("<i class='fa  fa-bookmark-o'></i> Generales", array('controller' => 'estadisticas', 'action' => 'index'), array('escape' => false)); ?></li>
 
-           <li><?php //echo $this->Html->link("<i class='fa   fa-text-width'></i> Transcriptores", array('controller' => 'trabajadors', 'action' => 'est_trabajadores'), array('escape' => false)); ?></li>
+           <li><?php echo $this->Html->link("<i class='fa   fa-text-width'></i> Transcriptores", array('controller' => 'trabajadors', 'action' => 'reporte'), array('escape' => false)); ?></li>
 
-           <li><?php //echo $this->Html->link("<i class='fa   fa-strikethrough'></i> Servicios", array('controller' => 'servicios', 'action' => 'est_servicios'), array('escape' => false)); ?></li>
+           <li><?php echo $this->Html->link("<i class='fa   fa-strikethrough'></i> Servicios", array('controller' => 'servicios', 'action' => 'reporte'), array('escape' => false)); ?></li>
 
            </ul>
         </li>

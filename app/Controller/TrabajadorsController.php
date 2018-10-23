@@ -138,10 +138,31 @@ class TrabajadorsController extends AppController {
 	}
 
 
-	public function est_trabajadores(){
+	public function reporte(){
 
+	
+	}
+
+
+	public function tabla_reporte(){
+
+		if ($this->request->is('ajax')) {
+
+			
+			$finicio = $this->request->data['desde'];
+			$ffin = $this->request->data['hasta'];
+			
+				$this->loadModel('Usuario');
+
+				$consulta_reporte = $this->Usuario->query("SELECT usuarios.nombreusuario, SUM(detalle_tickets.monto) AS totalmonto, COUNT(tickets.id) AS totalticket FROM tickets, detalle_tickets, usuarios WHERE tickets.id = detalle_tickets.ticket_id AND tickets.estadoticket = 'Facturado' AND usuarios.id = detalle_tickets.usuario_id AND detalle_tickets.borrado = false AND DATE(tickets.modified) BETWEEN '$finicio' AND '$ffin' GROUP BY usuarios.id");
+				//debug($consulta_reporte);
+				$this->set('usuarios', $consulta_reporte);
+
+			//$this->autoRender = false;
+		}
 		
 	}
+
 
 	
 

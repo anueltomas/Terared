@@ -1,7 +1,7 @@
 
 <?php //debug($prueba); ?>
 
-
+<?php $idcierre = CakeSession::read('idCierre'); ?>
 
 <?php
 
@@ -46,29 +46,26 @@
 			<table class="table">
 				<thead>
 					<tr>
-						<th><?php echo $this->Paginator->sort('N° Factura'); ?></th>
-						<th><?php echo $this->Paginator->sort('Cliente'); ?></th>
-						<th><?php echo $this->Paginator->sort('Fecha'); ?></th>
-						<th><?php echo $this->Paginator->sort('Total'); ?></th>
+						<th>N° Factura</th>
+						<th>Fecha</th>
+						<th>Total</th>
 					</tr>
 				</thead>
 				<tbody>
 					<?php foreach ($turnos as $turno): ?>
 						
 					<tr>
-				<td><?php echo h($turno['Factura']['nfactura']); ?>&nbsp;</td>
+				<td><?php echo h($turno['facturas']['nfactura']); ?>&nbsp;</td>
 
-				<td><?php echo h($turno['Cliente']['nombre']); ?>&nbsp;</td>
+				<td><?php echo h($turno['facturas']['created']); ?>&nbsp;</td>
 
-				<td><?php echo h($turno['Factura']['created']); ?>&nbsp;</td>
-
-				<td><?php echo number_format($turno['Factura']['totalfactura'], 2,",","."); ?> Bs.</td>
+				<td><?php echo number_format($turno['facturas']['totalfactura'], 2,",","."); ?> Bs.</td>
 
 						
 				
 				
 				<td class="actions">
-					<?php echo $this->Html->link(__('Ver Tickets'), array('controller' => 'tickets', 'action' => 'tickets_facturas', $turno['Ticket']['id'], $idcierre), array('class' => 'btn btn-sm btn-danger')); ?>
+					<?php echo $this->Html->link(__('Ver Tickets'), array('controller' => 'cierres', 'action' => 'tickets_cobrados', $turno['facturas']['id'], $idturno), array('class' => 'btn btn-sm btn-danger')); ?>
 				</td>
 
 			</tr>
@@ -81,18 +78,8 @@
 	        	<div class="progress-bar progress-bar-striped" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"><span class="sr-only">100% Complete</span>
 	        	</div>
 	      	</div>
-			<p>
-				<?= $this->Paginator->counter('Página {:page} de {:pages}, mostrando {:current} registro(s) de {:count} en total, desde {:start}, hasta {:end}');
-						?>
-			</p>
-			
-				<ul class="pagination pagination-sm no-margin pull-left">
-			        <li><?php echo $this->Paginator->prev('<' .__('Anterior'), array('tag' => false), null, array('class' => 'prev disabled')); ?></li>
-						<?php echo $this->Paginator->numbers(array('separator' => '', 'tag' => 'li', 'currentTag' => 'a', 'currentClass' => 'active')); ?>
-					<li><?php echo $this->Paginator->next(__('Siguiente') . ' >', array('tag' => false), null, array('class' => 'next disabled')); ?></li>
-		        </ul>
-
-		        <?php echo $this->Js->writeBuffer(); ?>
+						
+				
 			
 		</div>
 		</div>
@@ -102,7 +89,7 @@
 
 <div class="box-footer">
 		<div class="form-group">
-			<?php echo $this->Html->link("<i class='fa fa-arrow-left'></i> Volver", $this->request->referer(), array('type' => 'submit', 'class' => 'btn btn-danger pull-right', 'escape' => false)); 
+			<?php echo $this->Html->link("<i class='fa fa-arrow-left'></i> Volver", array('controller' => 'cierres', 'action' => 'ver', $idturno, $idcierre), array('type' => 'submit', 'class' => 'btn btn-danger pull-right', 'escape' => false));
 			?>
 		</div>
 	</div>

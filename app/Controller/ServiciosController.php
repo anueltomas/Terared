@@ -482,7 +482,28 @@ class ServiciosController extends AppController {
     }
 
 
-    public function est_servicios(){
+    public function reporte(){
+
+	
+	}
+
+
+	public function tabla_reporte(){
+
+		if ($this->request->is('ajax')) {
+
+			
+			$finicio = $this->request->data['desde'];
+			$ffin = $this->request->data['hasta'];
+			
+				$this->loadModel('Servicio');
+
+				$consulta_reporte = $this->Servicio->query("SELECT servicios.nombreservicio AS NOMBRE_SERVICIOS, SUM(detalle_tickets.monto) AS TOTAL, SUM(detalle_tickets.cantidad) AS CANT_POR_SERVICIO FROM servicios, tickets, detalle_tickets WHERE tickets.id = detalle_tickets.ticket_id AND servicios.id = detalle_tickets.servicio_id AND tickets.estadoticket = 'Facturado'AND detalle_tickets.borrado = false AND DATE(tickets.modified) BETWEEN '$finicio' AND '$ffin' GROUP BY servicios.id ORDER BY SUM(detalle_tickets.monto) DESC");
+				//debug($consulta_reporte);
+				$this->set('servicios', $consulta_reporte);
+
+			//$this->autoRender = false;
+		}
 		
 	}
 

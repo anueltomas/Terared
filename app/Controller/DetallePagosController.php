@@ -280,6 +280,27 @@ class DetallePagosController extends AppController {
 
 	}
 
+		public function pago_ticket($idTicket = null, $idTurno = null, $idCierre = null){
+
+		if ($idTicket == null) {
+			throw new NotFoundException("Id de ticket no encontrado", 1);
+		}
+
+		$detalletransferencias = $this->DetallePago->find('all', array('conditions' => array('DetallePago.ticket_id' => $idTicket, 'DetallePago.transferencia_id !=' => null)));
+
+		$detalleefectivos = $this->DetallePago->find('all', array('conditions' => array('DetallePago.ticket_id' => $idTicket, 'DetallePago.efectivo_id !=' => null)));
+
+		$detallepuntos = $this->DetallePago->find('all', array('conditions' => array('DetallePago.ticket_id' => $idTicket, 'DetallePago.punto_id !=' => null)));
+
+		$this->set(compact('detalletransferencias', 'detalleefectivos', 'detallepuntos', 'idTicket'));
+
+
+		$this->set('idturno', $idTurno);
+
+		$this->set('idcierre', $idCierre);
+
+	}
+
 
 
 

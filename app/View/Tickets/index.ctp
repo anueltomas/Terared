@@ -185,6 +185,7 @@
 
 
 <!-- REFRESH AUTOMATICO -->
+
   <script type="text/javascript">
 
   addEventListener('load', ajax, false);

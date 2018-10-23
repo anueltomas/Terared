@@ -438,7 +438,7 @@ public function calcular()
 		if($idUsuario != null){
 		$this->loadModel('DetallePago');
 			//EFECTIVO
-			$efectivo = $this->DetallePago->query("SELECT SUM(detalle_pagos.total) AS EFECTIVO FROM detalle_pagos, efectivos, tickets, usuarios, turno_cajeros WHERE efectivos.id = detalle_pagos.efectivo_id AND tickets.id = detalle_pagos.ticket_id AND tickets.turno_cajero_id = turno_cajeros.id AND turno_cajeros.usuario_id = usuarios.id AND turno_cajeros.id = $idTurno "); 
+			$efectivo = $this->DetallePago->query("SELECT SUM(detalle_pagos.total) AS EFECTIVO FROM detalle_pagos, efectivos, tickets, usuarios, turno_cajeros WHERE efectivos.id = detalle_pagos.efectivo_id AND tickets.id = detalle_pagos.ticket_id AND tickets.turno_cajero_id = turno_cajeros.id AND turno_cajeros.usuario_id = usuarios.id AND turno_cajeros.id = $idTurno AND tickets.borrado = false "); 
 
 			$this->set('efectivo', $efectivo);
 
@@ -449,7 +449,7 @@ public function calcular()
 				AND puntos.id = detalle_pagos.punto_id 
 				AND tickets.id = detalle_pagos.ticket_id 
 				AND tickets.turno_cajero_id = turno_cajeros.id
-				AND turno_cajeros.usuario_id = usuarios.id AND turno_cajeros.id = $idTurno 
+				AND turno_cajeros.usuario_id = usuarios.id AND turno_cajeros.id = $idTurno AND tickets.borrado = false
 				GROUP BY bancopuntos.nombre"); 
 
 			$this->set('cadaPunto', $puntos);
@@ -462,6 +462,7 @@ public function calcular()
 				WHERE puntos.id = detalle_pagos.punto_id 
 				AND tickets.id = detalle_pagos.ticket_id 
 				AND tickets.turno_cajero_id = turno_cajeros.id
+				AND tickets.borrado = false
 				AND turno_cajeros.usuario_id = usuarios.id AND turno_cajeros.id = $idTurno"); 
 
 			$this->set('puntos', $punto);
@@ -473,6 +474,7 @@ public function calcular()
 				WHERE transferencias.id = detalle_pagos.transferencia_id 
 				AND tickets.id = detalle_pagos.ticket_id 
 				AND tickets.turno_cajero_id = turno_cajeros.id 
+				AND tickets.borrado = false
 				AND turno_cajeros.usuario_id = usuarios.id AND turno_cajeros.id = $idTurno"); 
 
 			$this->set('transferencias', $transferencia);
@@ -493,6 +495,7 @@ public function calcular()
 			$total = $this->DetallePago->query("SELECT  SUM(detalle_pagos.total) AS TOTAL
 				FROM detalle_pagos, tickets, usuarios, turno_cajeros
 				WHERE tickets.id = detalle_pagos.ticket_id 
+				AND tickets.borrado = false
 				AND tickets.turno_cajero_id = turno_cajeros.id 
 				AND turno_cajeros.usuario_id = usuarios.id 
 				AND turno_cajeros.id = $idTurno"); 
@@ -517,56 +520,68 @@ public function calcular()
 		
 	}
 
-		public function tickets_cobrados($idTurno = null, $idCierre = null){
+		public function tickets_cobrados($idFactura = null, $idTurno = null){
 
-			$this->Cierre->id = $idCierre;
-			if (!$this->Cierre->exists()) {
-				throw new NotFoundException(__('Invalid cierre'));
+			$this->loadModel('TurnoCajero');
+
+			$this->TurnoCajero->id = $idTurno;
+			if (!$this->TurnoCajero->exists()) {
+				throw new NotFoundException(__('Id de turno no válido'));
+			}
+
+			$this->loadModel('Factura');
+
+			$this->Factura->id = $idFactura;
+			if (!$this->Factura->exists()) {
+				throw new NotFoundException(__('Id de factura no válido'));
 			}
 
 			//Aca se hara una consulta de todos los tickets que fueron cobrados por un cajero en un cierre en especifico
 
-			$this->set('idcierre', $idCierre);
 			$this->set('idturno', $idTurno);
+			$this->set('idfactura', $idFactura);
+
+			$this->loadModel('Ticket');
 
 			$this->Paginator->settings = array(
-				'conditions' => array('TurnoCajero.cierre_id' => $idCierre),
+				'conditions' => array('Ticket.factura_id' => $idFactura),
 				'limit' => 10
 				);
-			$modelos = $this->Cierre->TurnoCajero->Ticket;
+			$modelos = $this->Ticket;
 			$datos = $this->Paginator->paginate($modelos);
 			$this->set('tickets', $datos);
 
 		
 	}
 
-	public function facturas_emitidas($idCierre = null){
+	public function facturas_emitidas($idTurno = null){
 
-			$this->Cierre->id = $idCierre;
-			if (!$this->Cierre->exists()) {
-				throw new NotFoundException(__('Invalid cierre'));
+				$this->loadModel('TurnoCajero');
+			$this->TurnoCajero->id = $idTurno;
+			if (!$this->TurnoCajero->exists()) {
+				throw new NotFoundException(__('Id de turno no válido'));
 			}
 
 			//Buscamos a que turno pertenecen los tickets para establecer a que facturas se agregaron dichos tickets
 
 			$this->loadModel('Factura');
 
-			$turno = $this->Cierre->TurnoCajero->Ticket->find('first', array('conditions' => array('TurnoCajero.cierre_id' => $idCierre), 'recursive' => 0));
-
-			$turno = $turno['TurnoCajero']['id'];
-
-			$this->set('turno', $turno);
-
-			$this->Paginator->settings = array(
+			/*$this->Paginator->settings = array(
+				'fields' => array('DISTINCT Factura.id', 'Factura.created', 'Factura.totalfactura'),
 				'conditions' => array('Ticket.turno_cajero_id' => $turno),
 				'limit' => 10
 				);
 			$modelos = $this->Factura->Ticket;
 			$datos = $this->Paginator->paginate($modelos);
+			
+			*/
+
+			$datos = $this->Factura->query("SELECT DISTINCT facturas.id, facturas.nfactura, facturas.totalfactura, facturas.created FROM facturas, tickets WHERE tickets.turno_cajero_id = $idTurno AND tickets.factura_id = facturas.id ORDER BY facturas.id ASC");
+			//debug($datos);
+			//$datos = $this->Paginator->paginate($datos);
 			$this->set('turnos', $datos);
 
-			$this->set('idcierre', $idCierre);
-
+			$this->set('idturno', $idTurno);
 
 	}
 

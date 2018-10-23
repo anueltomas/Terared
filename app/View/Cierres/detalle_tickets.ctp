@@ -3,6 +3,8 @@
 <?php //debug($tick); ?>
 <?php //debug($idticket); ?>
 
+<?php $idfactura = CakeSession::read('idFactura'); ?>
+
 <div class="box box-danger box-solid">
 	<div class="box-header with-border">
 		<h3 class="box-title"><i class="fa fa-money"></i> Detalles del ticket</h3>
@@ -83,13 +85,9 @@
 			                  		<?php echo $this->Form->input('', array('label' => false, 'class' => 'form-control', 'Default' => 'Punto', 'disabled' => true, 'value' => number_format($total_pagado, 2,",","."))); ?> 
 			                  		<span class="input-group-btn">
 
-<?php 
-		//Variable para saber si volvera a cierres o a ticket
-		$volver = 'C';
 
-	 ?>
 
-				                      <?php echo $this->Html->link('Detalle', array('controller' => 'detallePagos', 'action' => 'pago_historico', $idTicket, $volver, $idturno, $idcierre), array('class' => 'btn btn-primary')); ?>
+				                      <?php echo $this->Html->link('Detalle', array('controller' => 'detallePagos', 'action' => 'pago_ticket', $idTicket, $idturno, $idcierre), array('class' => 'btn btn-primary')); ?>
 				                    </span>
 			                    </div>
 
@@ -110,7 +108,7 @@
 
     
 
-      <?php echo $this->Html->link("<i class='fa fa-arrow-left'></i> Volver", array('controller' => 'cierres', 'action' => 'tickets_cobrados', $idturno, $idcierre), array('type' => 'submit', 'class' => 'btn btn-danger pull-right', 'escape' => false)); 
+      <?php echo $this->Html->link("<i class='fa fa-arrow-left'></i> Volver", array('controller' => 'cierres', 'action' => 'tickets_cobrados', $idfactura, $idturno), array('type' => 'submit', 'class' => 'btn btn-danger pull-right', 'escape' => false)); 
       ?>
     </div>
   </div>

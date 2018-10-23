@@ -127,4 +127,7 @@ Configure::write('CakePdf', array(
         ),
 ));
 
+//Debugkit
+CakePlugin::load('DebugKit');
+
 

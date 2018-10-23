@@ -33,7 +33,7 @@ App::uses('Controller', 'Controller');
 class AppController extends Controller {
 
 	public $helpers = array('Html', 'Form', 'Time', 'Js');
-	public $components = array('Flash', 'Session', 'Auth', 'RequestHandler');
+	public $components = array('DebugKit.Toolbar', 'Flash', 'Session', 'Auth', 'RequestHandler');
 
 	public function beforeFilter(){
 		$this->Auth->allow('login, logout');

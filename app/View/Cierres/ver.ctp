@@ -12,6 +12,8 @@
 <?php //debug($idcierre); ?>
 <?php //debug($turnos); ?>
 
+<?php CakeSession::write('idCierre', $idcierre); ?>
+
 <?php if ($datosCajero == null) { ?>
 
 	
@@ -159,7 +161,7 @@
 	<?php echo $this->Html->link("<i class=''></i> Tickets Cobrados", array('action' => 'tickets_cobrados', $idturno, $idcierre), array('type' => 'submit', 'class' => 'btn btn-warning pull-left', 'escape' => false)); 
 			?>
 
-	<?php echo $this->Html->link("<i class=''></i> Facturas Emitidas", array('action' => 'facturas_emitidas', $idcierre), array('type' => 'submit', 'class' => 'btn btn-success pull-right', 'escape' => false)); 
+	<?php echo $this->Html->link("<i class=''></i> Facturas Emitidas", array('action' => 'facturas_emitidas', $idturno), array('type' => 'submit', 'class' => 'btn btn-success pull-right', 'escape' => false)); 
 			?>
 	
 	</div>

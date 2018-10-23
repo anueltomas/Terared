@@ -1,6 +1,7 @@
 <?php //debug($servicios); ?>
 <?php //debug($current_user); ?>
 <?php echo $this->Html->script(array('myjs/buscar')); ?>
+<?php echo $this->Html->css(array('datatables.net-bs/css/dataTables.bootstrap.min') );  ?>
 <div class="box box-primary box-solid">
 	<div class="box-header with-border">
 		<h3 class="box-title"><i class="fa fa-server"></i> Gestión de Servicios</h3>
@@ -53,7 +54,7 @@
       <!-- /.search form -->
       <div class="col-md-12 ">
 		<div class="table-responsive">
-			<table class="table">
+			<table id="example1" class="table">
 				<thead>
 					<tr>
 						<th>Código</th>
@@ -135,5 +136,22 @@
 	
 	
 </div>
+
+
+
+
+<script>
+  $(function () {
+    $('#example1').DataTable()
+    $('#example2').DataTable({
+      'paging'      : true,
+      'lengthChange': false,
+      'searching'   : false,
+      'ordering'    : true,
+      'info'        : true,
+      'autoWidth'   : false
+    })
+  })
+</script>
 
 

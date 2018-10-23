@@ -5,6 +5,8 @@
 <?php //debug($pagos); ?>
 <?php //debug($idcierre); ?>
 
+<?php CakeSession::write('idFactura', $idfactura); ?>
+
 
 
 <?php
@@ -51,7 +53,6 @@
 				<thead>
 					<tr>
 						<th><?php echo $this->Paginator->sort('N° Ticket'); ?></th>
-						<th><?php echo $this->Paginator->sort('Estado'); ?></th>
 						<th><?php echo $this->Paginator->sort('Nombre del Cliente'); ?></th>
 						<th><?php echo $this->Paginator->sort('Total'); ?></th>
 						<th><?php echo $this->Paginator->sort('Fecha'); ?></th>
@@ -63,8 +64,6 @@
 					<tr>
 				<td><?php echo h($ticket['Ticket']['numeroticket']); ?>&nbsp;</td>
 
-				<td><?php echo h($ticket['Ticket']['estadoticket']); ?>&nbsp;</td>
-
 				<td><?php echo h($ticket['Cliente']['nombre']); ?>&nbsp;</td>
 
 				<td><?php echo number_format($ticket['Ticket']['montoticket'], 2,",","."); ?> Bs.</td>
@@ -74,7 +73,7 @@
 				
 				
 				<td class="actions">
-					<?php echo $this->Html->link(__('Ver'), array('controller' => 'cierres', 'action' => 'detalle_tickets', $ticket['Ticket']['id'], $idturno, $idcierre), array('class' => 'btn btn-sm btn-danger')); ?>
+					<?php echo $this->Html->link(__('Ver'), array('controller' => 'cierres', 'action' => 'detalle_tickets', $ticket['Ticket']['id'], $idturno), array('class' => 'btn btn-sm btn-danger')); ?>
 				</td>
 
 			</tr>
@@ -108,7 +107,8 @@
 
 <div class="box-footer">
 		<div class="form-group">
-			<?php echo $this->Html->link("<i class='fa fa-arrow-left'></i> Volver", array('controller' => 'cierres', 'action' => 'ver', $idturno, $idcierre), array('type' => 'submit', 'class' => 'btn btn-danger pull-right', 'escape' => false)); 
+			<?php echo $this->Html->link("<i class='fa fa-arrow-left'></i> Volver", array('controller' => 'cierres', 'action' => 'facturas_emitidas', $idturno), array('type' => 'submit', 'class' => 'btn btn-danger pull-right', 'escape' => false)); 
+      ?>
 			?>
 		</div>
 	</div>

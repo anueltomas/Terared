@@ -358,7 +358,7 @@ class TicketsController extends AppController {
 					$this->set('detalles', $detalles);
 
 					//Calculando total de tickets
-					$totaltickets = $this->DetalleTicket->find('all', array('fields' => array('ticket_id', 'SUM(DetalleTicket.monto) as subtotal'), 'group' => array('DetalleTicket.ticket_id')));
+					$totaltickets = $this->DetalleTicket->find('all', array('conditions' => array('DetalleTicket.borrado' => 0), 'fields' => array('ticket_id', 'SUM(DetalleTicket.monto) as subtotal'), 'group' => array('DetalleTicket.ticket_id')));
 
 
 					$this->set('totales', $totaltickets);
@@ -370,7 +370,7 @@ class TicketsController extends AppController {
 
 					$this->set('cajero', $cajero);
 
-					$conditions = array('Ticket.estadoticket' => array('Pagado'));
+					$conditions = array('Ticket.estadoticket' => array('Pagado'), 'Ticket.borrado' => 0);
 					$ticket = $this->Ticket->find('all', array('conditions' => $conditions, 'order' => array('Ticket.modified' => 'DESC'), 'limit' => 20));
 					$this->set('pagados', $ticket);
 
@@ -576,6 +576,8 @@ class TicketsController extends AppController {
 					$this->set('pagos', $pagos);
 				*/
 	}//FINAL historico_pago
+
+
 
 
 	public function total_pagados() {
@@ -1465,9 +1467,9 @@ class TicketsController extends AppController {
 
 
 
-				$totaltickets = $this->DetalleTicket->find('all', array('fields' => array('ticket_id', 'SUM(DetalleTicket.monto) as subtotal'), 'group' => array('DetalleTicket.ticket_id')));
+				$totaltickets = $this->DetalleTicket->find('all', array('conditions' => array('DetalleTicket.borrado' => 0), 'fields' => array('ticket_id', 'SUM(DetalleTicket.monto) as subtotal'), 'group' => array('DetalleTicket.ticket_id')));
 
-				$totalpagado = $this->Ticket->DetallePago->find('all', array('conditions' => array('DetallePago.ticket_id' => $idTicket), 'fields' => array('ticket_id', 'SUM(DetallePago.total) as subtotal')));
+				$totalpagado = $this->Ticket->DetallePago->find('all', array('conditions' => array('DetallePago.ticket_id' => $idTicket, 'DetallePago.borrado' => 0), 'fields' => array('ticket_id', 'SUM(DetallePago.total) as subtotal')));
 
 				$this->set('pagado', $totalpagado);
 
@@ -1512,9 +1514,9 @@ class TicketsController extends AppController {
 
 
 
-				$totaltickets = $this->DetalleTicket->find('all', array('fields' => array('ticket_id', 'SUM(DetalleTicket.monto) as subtotal'), 'group' => array('DetalleTicket.ticket_id')));
+				$totaltickets = $this->DetalleTicket->find('all', array('conditions' => array('DetalleTicket.borrado' => 0), 'fields' => array('ticket_id', 'SUM(DetalleTicket.monto) as subtotal'), 'group' => array('DetalleTicket.ticket_id')));
 
-				$totalpagado = $this->Ticket->DetallePago->find('all', array('conditions' => array('DetallePago.ticket_id' => $idTicket), 'fields' => array('ticket_id', 'SUM(DetallePago.total) as subtotal')));
+				$totalpagado = $this->Ticket->DetallePago->find('all', array('conditions' => array('DetallePago.ticket_id' => $idTicket, 'DetallePago.borrado' => 0), 'fields' => array('ticket_id', 'SUM(DetallePago.total) as subtotal')));
 
 				$this->set('pagado', $totalpagado);
 

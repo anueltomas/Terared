@@ -1,4 +1,4 @@
-
+<?php echo $this->Html->css(array('datatables.net-bs/css/dataTables.bootstrap.min') );  ?>
 <!-- -->
 
 <?php //debug($servicios); ?>
@@ -42,7 +42,7 @@
 	<div class="box-body">
 	<div class="col-md-10 col-md-offset-1">
 		<div class="table-responsive">
-			<table class="table">
+			<table id="example1" class="table table-striped">
 				<thead>
 					<tr>
 					<th>Código</th>
@@ -72,3 +72,18 @@
 	</div>
 </div>
 
+
+
+<script>
+  $(function () {
+    $('#example1').DataTable()
+    $('#example2').DataTable({
+      'paging'      : true,
+      'lengthChange': false,
+      'searching'   : false,
+      'ordering'    : true,
+      'info'        : true,
+      'autoWidth'   : false
+    })
+  })
+</script>

@@ -3,7 +3,7 @@
 <?php //debug($tickets); ?>
 <?php //debug($cajero); ?>
 <?php //debug($pagos); ?>
-
+<?php echo $this->Html->css(array('datatables.net-bs/css/dataTables.bootstrap.min') );  ?>
 
 
 <?php
@@ -46,7 +46,7 @@
 
       <div class="col-md-10 col-md-offset-1">
 		<div class="table-responsive">
-			<table class="table">
+			<table id="example1" class="table">
 				<thead>
 					<tr>
 						<th><?php echo $this->Paginator->sort('N° Ticket'); ?></th>
@@ -109,4 +109,19 @@
 	
 	
 </div>
+
+
+<script>
+  $(function () {
+    $('#example1').DataTable()
+    $('#example2').DataTable({
+      'paging'      : true,
+      'lengthChange': false,
+      'searching'   : false,
+      'ordering'    : true,
+      'info'        : true,
+      'autoWidth'   : false
+    })
+  })
+</script>
 

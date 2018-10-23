@@ -5,6 +5,8 @@
 <?php //debug($cajero); ?>
 
 
+
+
 <div class="box box-danger box-solid">
 	<div class="box-header with-border">
 		<h3 class="box-title"><i class="fa fa-money"></i> Resumen del Cierre</h3>
